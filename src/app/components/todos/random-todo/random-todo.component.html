@@ -1,0 +1,25 @@
+<div class="container mt-3">
+    <button type="submit" (click)="randomTodo()" class="btn btn-primary my-3" [disabled]="loading">
+        {{ loading ? 'Loading...' : 'Random' }}
+    </button>
+    <!-- Spinner -->
+    <div *ngIf="loading" class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <!-- Todo card -->
+    <div *ngIf="todo && !loading" class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">{{ todo.todo }}</h5>
+            <p class="card-text">
+                <strong>ID:</strong> {{ todo.id }}<br />
+                <strong>User ID:</strong> {{ todo.userId }}<br />
+                <strong>Status:</strong>
+                <span class="badge" [class.bg-success]="todo.completed" [class.bg-danger]="!todo.completed">
+                    {{ todo.completed ? 'Completed' : 'Not Completed' }}
+                </span>
+            </p>
+        </div>
+    </div>
+</div>

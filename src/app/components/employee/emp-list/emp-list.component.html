@@ -1,0 +1,38 @@
+<div class="container mt-4">
+    <div *ngIf="message" class="alert alert-success text-center" role="alert">
+        {{ message }}
+    </div>
+    <app-emp-create [employee]="selectedEmployee" (formSubmit)="handleSubmit($event)"></app-emp-create>
+
+    <table class="table table-bordered table-hover mt-4">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Position</th>
+                <th>DOB</th>
+                <th>Gender</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let emp of employees">
+                <td>{{ emp.id }}</td>
+                <td><img [src]="emp.image" width="50" height="50" class="rounded-circle" alt="photo"></td>
+                <td>{{ emp.code }}</td>
+                <td>{{ emp.name }}</td>
+                <td>{{ emp.position }}</td>
+                <td>{{ emp.dob }}</td>
+                <td>{{ emp.gender }}</td>
+                <td>{{ emp.status }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary me-2" (click)="edit(emp)">Edit</button>
+                    <button class="btn btn-sm btn-danger" (click)="delete(emp.id!)">Delete</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
