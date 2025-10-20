@@ -1,0 +1,505 @@
+<div class="container">
+    <div class="admin-orders-page">
+        <!-- Header -->
+        <div class="page-header mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-5 fs-3 fw-bold text-dark">
+                        <i class="fas fa-shopping-cart me-3 text-primary"></i>Order Management
+                    </h1>
+                    <p class="text-muted">Manage customer orders and track order status</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" (click)="exportOrders()">
+                            <i class="fas fa-download me-2"></i>Export
+                        </button>
+                        <button class="btn btn-primary" (click)="loadOrders()">
+                            <i class="fas fa-sync-alt me-2"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ ordersStats.total }}</h3>
+                                <small>Total Orders</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ ordersStats.revenue | currency:'USD':'symbol':'1.0-0' }}</h3>
+                                <small>Total Revenue</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ ordersStats.pending }}</h3>
+                                <small>Pending Orders</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ ordersStats.delivered }}</h3>
+                                <small>Delivered</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="card filters-card mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <!-- Search -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Search Orders</label>
+                        <div class="search-box">
+                            <i class="fas fa-search position-absolute mt-2 ms-3 text-muted"></i>
+                            <input type="text" class="form-control ps-5"
+                                placeholder="Search by order ID, customer, or product..." [(ngModel)]="searchTerm"
+                                (input)="applyFilters()">
+                        </div>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Status</label>
+                        <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                            <option value="all">All Status</option>
+                            <option *ngFor="let status of statusOptions" [value]="status.value">
+                                {{ status.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Customer Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Customer</label>
+                        <select class="form-select" [(ngModel)]="customerFilter" (change)="applyFilters()">
+                            <option value="all">All Customers</option>
+                            <option *ngFor="let user of users" [value]="user.id">
+                                {{ user.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Date Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Date Range</label>
+                        <select class="form-select" [(ngModel)]="dateFilter" (change)="applyFilters()">
+                            <option *ngFor="let option of dateOptions" [value]="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Sort By</label>
+                        <select class="form-select" [(ngModel)]="selectedSort" (change)="applyFilters()">
+                            <option *ngFor="let option of sortOptions" [value]="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Reset -->
+                    <div class="col-md-1">
+                        <button class="btn btn-outline-secondary w-100"
+                            (click)="searchTerm = ''; statusFilter = 'all'; customerFilter = 'all'; dateFilter = 'all'; selectedSort = 'date-desc'; applyFilters()">
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="card main-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>Orders List
+                    <span class="badge bg-primary ms-2">{{ totalOrders }}</span>
+                </h5>
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">
+                        Showing {{ showingFrom }}-{{ showingTo }} of {{ totalOrders }} orders
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading orders...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="!isLoading && filteredOrders.length === 0" class="text-center py-5">
+                    <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                    <h5>No orders found</h5>
+                    <p class="text-muted mb-4">No orders match your current filters</p>
+                    <button class="btn btn-primary"
+                        (click)="searchTerm = ''; statusFilter = 'all'; customerFilter = 'all'; dateFilter = 'all'; applyFilters()">
+                        Clear Filters
+                    </button>
+                </div>
+
+                <!-- Orders Table -->
+                <div *ngIf="!isLoading && filteredOrders.length > 0" class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="80">Order ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let order of paginatedOrders" class="order-row">
+                                <td>
+                                    <strong class="text-primary">#{{ order.id }}</strong>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img [src]="getUserAvatar(order.userId)" [alt]="getUserName(order.userId)"
+                                            class="customer-avatar rounded-circle me-3">
+                                        <div>
+                                            <h6 class="mb-1">{{ getUserName(order.userId) }}</h6>
+                                            <small class="text-muted">{{ getUserEmail(order.userId) }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-nowrap">
+                                        <div class="fw-semibold">{{ order.date }}</div>
+                                        <small class="text-muted">{{ getDaysAgo(order.date) }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="item-count me-2">
+                                            <span class="badge bg-light text-dark">{{ order.items.length }} items</span>
+                                        </div>
+                                        <div class="item-preview">
+                                            <div *ngFor="let item of order.items.slice(0, 2)"
+                                                class="d-flex align-items-center mb-1">
+                                                <img [src]="getProductImage(item.productId)"
+                                                    [alt]="getProductName(item.productId)"
+                                                    class="product-thumb rounded me-1"
+                                                    style="width: 25px; height: 25px; object-fit: cover;">
+                                                <small class="text-muted">x{{ item.quantity }}</small>
+                                            </div>
+                                            <small *ngIf="order.items.length > 2" class="text-muted">+{{
+                                                order.items.length
+                                                - 2 }} more</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-success fw-bold">${{ order.total | number:'1.2-2' }}</div>
+                                    <small class="text-muted">{{ order.items.length }} items</small>
+                                </td>
+                                <td>
+                                    <span class="badge" [ngClass]="getOrderStatusBadgeClass(order.status)">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 6px; width: 80px;">
+                                        <div class="progress-bar" [ngClass]="getOrderStatusBadgeClass(order.status)"
+                                            [style.width.%]="getStatusProgress(order)"></div>
+                                    </div>
+                                    <small class="text-muted">{{ getStatusProgress(order) }}%</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" (click)="viewOrderDetails(order)"
+                                            title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning"
+                                            (click)="updateOrderStatus(order, order.status)" title="Update Status">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div *ngIf="!isLoading && filteredOrders.length > 0" class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                Showing {{ showingFrom }}-{{ showingTo }} of {{ totalOrders }} orders
+                            </small>
+                        </div>
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item" [class.disabled]="currentPage === 1">
+                                    <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
+                                </li>
+
+                                <li *ngFor="let page of getPageNumbers()" class="page-item"
+                                    [class.active]="page === currentPage">
+                                    <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+                                </li>
+
+                                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                    <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details Modal -->
+        <div class="modal fade show d-block" [class.show]="showOrderModal" style="background: rgba(0,0,0,0.5)"
+            *ngIf="showOrderModal && selectedOrder">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-receipt me-2 text-primary"></i>
+                            Order #{{ selectedOrder.id }} Details
+                        </h5>
+                        <button type="button" class="btn-close" (click)="closeOrderModal()"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Order Summary -->
+                            <div class="col-md-6 mb-4">
+                                <h6 class="fw-semibold mb-3">Order Information</h6>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="text-muted">Order ID:</span>
+                                        <strong>#{{ selectedOrder.id }}</strong>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="text-muted">Date:</span>
+                                        <span>{{ selectedOrder.date }}</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="text-muted">Status:</span>
+                                        <span class="badge" [ngClass]="getOrderStatusBadgeClass(selectedOrder.status)">
+                                            {{ selectedOrder.status }}
+                                        </span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="text-muted">Total Amount:</span>
+                                        <strong class="text-success">${{ selectedOrder.total | number:'1.2-2'
+                                            }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Customer Information -->
+                            <div class="col-md-6 mb-4">
+                                <h6 class="fw-semibold mb-3">Customer Information</h6>
+                                <div class="d-flex align-items-center mb-3">
+                                    <img [src]="getUserAvatar(selectedOrder.userId)"
+                                        [alt]="getUserName(selectedOrder.userId)"
+                                        class="customer-avatar-lg rounded-circle me-3">
+                                    <div>
+                                        <h6 class="mb-1">{{ getUserName(selectedOrder.userId) }}</h6>
+                                        <small class="text-muted">{{ getUserEmail(selectedOrder.userId) }}</small>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="selectedOrder.shippingAddress" class="shipping-info">
+                                    <h6 class="fw-semibold mb-2">Shipping Address</h6>
+                                    <p class="small mb-0">
+                                        {{ selectedOrder.shippingAddress.fullName }}<br>
+                                        {{ selectedOrder.shippingAddress.address }}<br>
+                                        {{ selectedOrder.shippingAddress.city }}, {{
+                                        selectedOrder.shippingAddress.zipCode
+                                        }}<br>
+                                        {{ selectedOrder.shippingAddress.country }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="order-items-section">
+                            <h6 class="fw-semibold mb-3">Order Items</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of selectedOrder.items">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img [src]="getProductImage(item.productId)"
+                                                        [alt]="getProductName(item.productId)"
+                                                        class="product-thumb rounded me-3">
+                                                    <div>
+                                                        <div class="fw-semibold">{{ getProductName(item.productId) }}
+                                                        </div>
+                                                        <small class="text-muted">Product ID: {{ item.productId
+                                                            }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>${{ item.price | number:'1.2-2' }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td class="fw-bold">${{ (item.price * item.quantity) | number:'1.2-2' }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-end fw-semibold">Total:</td>
+                                            <td class="fw-bold text-success">${{ selectedOrder.total | number:'1.2-2' }}
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Order Progress -->
+                        <div class="order-progress mt-4">
+                            <h6 class="fw-semibold mb-3">Order Progress</h6>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar" [ngClass]="getOrderStatusBadgeClass(selectedOrder.status)"
+                                    [style.width.%]="getStatusProgress(selectedOrder)"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <small class="text-muted">Order Placed</small>
+                                <small class="text-muted">Processing</small>
+                                <small class="text-muted">Shipped</small>
+                                <small class="text-muted">Delivered</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" (click)="closeOrderModal()">
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-warning"
+                            (click)="updateOrderStatus(selectedOrder, selectedOrder.status)">
+                            <i class="fas fa-edit me-2"></i>Update Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Update Status Modal -->
+        <div class="modal fade show d-block" [class.show]="showStatusModal" style="background: rgba(0,0,0,0.5)"
+            *ngIf="showStatusModal && selectedOrder">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-edit me-2 text-warning"></i>
+                            Update Order Status
+                        </h5>
+                        <button type="button" class="btn-close" (click)="closeStatusModal()"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p class="mb-3">Update status for <strong>Order #{{ selectedOrder.id }}</strong></p>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Current Status</label>
+                            <div class="current-status">
+                                <span class="badge" [ngClass]="getOrderStatusBadgeClass(selectedOrder.status)">
+                                    {{ selectedOrder.status }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">New Status</label>
+                            <select class="form-select" [(ngModel)]="selectedOrder.status">
+                                <option *ngFor="let status of statusOptions" [value]="status.value">
+                                    {{ status.label }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <small>
+                                <i class="fas fa-info-circle me-2"></i>
+                                Updating order status will notify the customer about the change.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" (click)="closeStatusModal()">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-warning" (click)="confirmStatusUpdate()">
+                            <i class="fas fa-save me-2"></i>Update Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

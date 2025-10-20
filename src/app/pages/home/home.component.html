@@ -1,0 +1,363 @@
+<div class="container mt-4">
+    <!-- TOP SLIDER -->
+    <div id="topCarousel" class="carousel slide carousel-fade main-carousel" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" *ngFor="let image of topCarouselImages; let i = index"
+                [attr.data-bs-target]="'#topCarousel'" [attr.data-bs-slide-to]="i" [class.active]="i === 0"
+                [attr.aria-label]="'Slide ' + (i + 1)"></button>
+        </div>
+
+        <div class="carousel-inner">
+            <div *ngFor="let image of topCarouselImages; let i = index" class="carousel-item" [class.active]="i === 0">
+                <img [src]="image.url" class="d-block w-100 carousel-image" [alt]="image.title">
+                <div class="carousel-caption">
+                    <h2>{{ image.title }}</h2>
+                    <p class="lead">{{ image.description }}</p>
+                    <button class="btn carousel-btn">Shop Now</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#topCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#topCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    <div class="row">
+        <!-- LEFT SIDEBAR -->
+        <div class="col-md-3">
+            <!-- Mobile Filter Toggle -->
+            <div class="d-md-none mb-3">
+                <button class="btn mobile-filter-toggle w-100" (click)="showFilters = !showFilters">
+                    <i class="fas fa-filter me-2"></i>
+                    Filters
+                    <span *ngIf="getActiveFilterCount() > 0" class="filter-badge">
+                        {{ getActiveFilterCount() }}
+                    </span>
+                </button>
+            </div>
+
+            <div class="sidebar-content" [class.d-none]="!showFilters" [class.d-md-block]="true">
+
+                <!-- Search Section -->
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-search me-2"></i>Search Products
+                        </h5>
+                        <input type="text" class="form-control search-input" placeholder="What are you looking for?"
+                            [(ngModel)]="searchTerm">
+                    </div>
+                </div>
+
+                <!-- Sort Options -->
+                <!-- <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-sort me-2"></i>Sort By
+                        </h5>
+                        <select class="form-select" [(ngModel)]="sortBy">
+                            <option value="name">Name (A-Z)</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="review-count">Most Reviewed</option>
+                            <option value="discount">Biggest Discount</option>
+                        </select>
+                    </div>
+                </div> -->
+
+                <!-- Price Range Filter -->
+                <!-- <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-tag me-2"></i>Price Range
+                        </h5>
+                        <div class="price-range-container">
+                            <div class="price-range-value">Up to ${{ priceRange }}</div>
+                            <input type="range" class="form-range mt-2" [min]="minPrice" [max]="maxPrice" [step]="10"
+                                [(ngModel)]="priceRange">
+                            <div class="price-limits d-flex justify-content-between">
+                                <span>${{ minPrice }}</span>
+                                <span>${{ maxPrice }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Categories Section -->
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-tags me-2"></i>Categories
+                        </h5>
+                        <div class="category-list">
+                            <button type="button" class="category-item w-100 text-start"
+                                [class.active]="selectedCategory === null" (click)="filterByCategory(null)">
+                                <span>All Products</span>
+                                <span class="badge category-badge">{{ products.length }}</span>
+                            </button>
+                            <button type="button" *ngFor="let category of categories"
+                                class="category-item w-100 text-start" [class.active]="selectedCategory === category.id"
+                                (click)="filterByCategory(category.id)">
+                                <span>{{ category.name }}</span>
+                                <span class="badge category-badge">
+                                    {{ getCategoryProductCount(category.id) }}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brands Filter -->
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-copyright me-2"></i>Brands
+                        </h5>
+                        <div class="brand-filters" style="max-height: 200px; overflow-y: auto;">
+                            <div *ngFor="let brand of brands" class="filter-checkbox">
+                                <input class="form-check-input" type="checkbox" [id]="'brand-' + brand"
+                                    (change)="onBrandChange(brand, $event)">
+                                <label class="filter-checkbox-label" [for]="'brand-' + brand">
+                                    {{ brand }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ratings Filter -->
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-star me-2"></i>Customer Ratings
+                        </h5>
+                        <div class="rating-filters">
+                            <div *ngFor="let rating of [4, 3, 2, 1]" class="filter-checkbox">
+                                <input class="form-check-input" type="checkbox" [id]="'rating-' + rating"
+                                    (change)="onRatingChange(rating, $event)">
+
+                                <label class="filter-checkbox-label" [for]="'rating-' + rating">
+                                    <span class="rating-stars">
+                                        <i *ngFor="let star of [1,2,3,4,5]" [class.fas]="star <= rating"
+                                            [class.far]="star > rating" class="fa-star star"></i>
+                                    </span>
+                                    <span class="rating-count">{{ getProductsCountByRating(rating) }}</span>
+                                </label>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discount Filter -->
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-percent me-2"></i>Discount
+                        </h5>
+                        <div class="discount-options">
+                            <div *ngFor="let option of discountOptions" class="discount-option"
+                                [class.active]="discountFilter === option.id" (click)="discountFilter = option.id">
+                                {{ option.name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Availability Filter -->
+                <!-- <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-box me-2"></i>Availability
+                        </h5>
+                        <div class="availability-filters">
+                            <div *ngFor="let option of availabilityOptions" class="filter-checkbox">
+                                <input class="form-check-input" type="checkbox" [id]="'availability-' + option.id"
+                                    (change)="onAvailabilityChange(option.id, $event)">
+                                <label class="filter-checkbox-label" [for]="'availability-' + option.id">
+                                    {{ option.name }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Top Rated Products -->
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-crown me-2"></i>Top Rated
+                        </h5>
+                        <div class="top-rated-products">
+                            <div *ngFor="let product of getTopRatedProducts(3)" class="product-preview">
+                                <img [src]="product.imageUrl" [alt]="product.name" class="product-preview-image">
+                                <div class="product-preview-info">
+                                    <div class="product-preview-name">{{ product.name | truncate:20 }}</div>
+                                    <div class="product-preview-rating">
+                                        <span class="rating-stars">
+                                            <i *ngFor="let star of [1,2,3,4,5]" [class.fas]="star <= product.rating"
+                                                [class.far]="star > product.rating" class="star"></i>
+                                        </span>
+                                        <small class="text-muted ms-1">({{ product.reviewCount }})</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clear Filters -->
+                <div class="card sidebar-card" *ngIf="getActiveFilterCount() > 0">
+                    <div class="card-body text-center">
+                        <button class="btn clear-filters-btn" (click)="clearAllFilters()">
+                            <i class="fas fa-times me-2"></i>Clear All Filters
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sidebar Carousel -->
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-gift me-2"></i>Special Offers
+                        </h5>
+                        <div id="sidebarCarousel" class="carousel slide sidebar-carousel" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                <div *ngFor="let image of sidebarCarouselImages; let i = index" class="carousel-item"
+                                    [class.active]="i === 0">
+                                    <img [src]="image.url" class="d-block w-100" [alt]="image.title">
+                                    <div class="carousel-caption">
+                                        <h6 class="mb-0">{{ image.title }}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT CONTENT -->
+        <div class="col-md-9">
+
+            <!-- Header Section -->
+            <div class="content-header">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+                        <h4 class="results-count mb-1" *ngIf="selectedCategory; else allProducts">
+                            {{ selectedCategoryName }}
+                            <small class="text-muted">({{ filteredProducts.length }} products)</small>
+                        </h4>
+                        <ng-template #allProducts>
+                            <h4 class="results-count mb-1">
+                                All Products
+                                <small class="text-muted">({{ filteredProducts.length }} products)</small>
+                            </h4>
+                        </ng-template>
+                    </div>
+
+                    <!-- Search Info -->
+                    <div *ngIf="searchTerm" class="search-info">
+                        <i class="fas fa-search me-2"></i>
+                        Search results for: "<strong>{{ searchTerm }}</strong>"
+                        <button class="btn-close ms-2" (click)="searchTerm = ''"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Sidebar -->
+            <div class="d-flex gap-3 ">
+
+                <!-- Price Range Filter -->
+                <div class="card sidebar-card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold text-primary mb-3">
+                            <i class="fas fa-tag me-2"></i>Price Range
+                        </h6>
+
+                        <div class="price-range-container">
+                            <div class="price-label mb-2">
+                                <strong>Up to:</strong> <span class="text-success fw-semibold">${{ priceRange }}</span>
+                            </div>
+
+                            <input type="range" class="form-range custom-range" [min]="minPrice" [max]="maxPrice"
+                                [step]="10" [(ngModel)]="priceRange">
+
+                            <div class="price-limits d-flex justify-content-between mt-1 small text-muted">
+                                <span>${{ minPrice }}</span>
+                                <span>${{ maxPrice }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sort By Filter -->
+                <div class="card sidebar-card shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title fw-bold text-primary mb-3">
+                            <i class="fas fa-sort me-2"></i>Sort By
+                        </h6>
+
+                        <select class="form-select sort-select" [(ngModel)]="sortBy">
+                            <option value="name">Name (A-Z)</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="review-count">Most Reviewed</option>
+                            <option value="discount">Biggest Discount</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card sidebar-card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-box me-2"></i>Availability
+                        </h5>
+                        <div class="availability-filters">
+                            <div *ngFor="let option of availabilityOptions" class="filter-checkbox">
+                                <input class="form-check-input" type="checkbox" [id]="'availability-' + option.id"
+                                    (change)="onAvailabilityChange(option.id, $event)">
+                                <label class="filter-checkbox-label" [for]="'availability-' + option.id">
+                                    {{ option.name }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+
+            <!-- Products Grid -->
+            <app-product-list [products]="filteredProducts"></app-product-list>
+
+            <!-- Empty State -->
+            <div *ngIf="filteredProducts.length === 0" class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No products found</h3>
+                <p class="text-muted mb-4">Try adjusting your search or filter criteria</p>
+                <div class="d-grid gap-2 d-md-block">
+                    <button class="btn btn-primary btn-lg me-2" (click)="filterByCategory(null)">
+                        <i class="fas fa-list me-2"></i>Show All Products
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg" (click)="clearAllFilters()">
+                        <i class="fas fa-times me-2"></i>Clear All Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

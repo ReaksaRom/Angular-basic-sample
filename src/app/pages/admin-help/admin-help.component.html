@@ -1,0 +1,432 @@
+<!-- admin-help.component.html -->
+<div class="admin-help">
+    <!-- Header -->
+    <div class="help-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="fas fa-life-ring me-3"></i>
+                Help & Support
+            </h1>
+            <p class="page-subtitle">Find answers, guides, and resources to help you manage your store</p>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn btn-outline-primary me-2" (click)="openDocumentation()">
+                <i class="fas fa-book me-2"></i>
+                Documentation
+            </button>
+            <button class="btn btn-primary" (click)="contactSupport()">
+                <i class="fas fa-headset me-2"></i>
+                Contact Support
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Help Cards -->
+    <div class="quick-help-cards">
+        <div class="row">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="help-card help-card-primary">
+                    <div class="card-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Video Tutorials</h3>
+                        <p>Step-by-step video guides for common tasks</p>
+                        <button class="btn btn-light btn-sm">Watch Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="help-card help-card-success">
+                    <div class="card-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Academy</h3>
+                        <p>In-depth courses to master ecommerce</p>
+                        <button class="btn btn-light btn-sm">Explore</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="help-card help-card-warning">
+                    <div class="card-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Best Practices</h3>
+                        <p>Tips and strategies for success</p>
+                        <button class="btn btn-light btn-sm">Learn More</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="help-card help-card-info">
+                    <div class="card-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>What's New</h3>
+                        <p>Latest features and updates</p>
+                        <button class="btn btn-light btn-sm">Discover</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="help-content">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 mb-4">
+                <div class="help-sidebar">
+                    <div class="sidebar-header">
+                        <h5>Help Categories</h5>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <ul class="nav flex-column">
+                            <li class="nav-item" *ngFor="let category of categories">
+                                <button class="nav-link"
+                                    [class.active]="activeCategory === category.name.toLowerCase().replace(' ', '-')"
+                                    (click)="onCategoryChange(category.name.toLowerCase().replace(' ', '-'))">
+                                    <i [class]="category.icon" class="me-2"></i>
+                                    {{ category.name }}
+                                    <span class="article-count">{{ category.articles.length }}</span>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- Support Card -->
+                    <div class="support-card">
+                        <div class="support-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="support-content">
+                            <h6>Need Help?</h6>
+                            <p>Our support team is here to assist you</p>
+                            <button class="btn btn-primary btn-sm w-100" (click)="contactSupport()">
+                                Contact Support
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-lg-9">
+                <!-- Search Bar -->
+                <div class="search-section mb-4">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" class="form-control" placeholder="Search help articles..."
+                            [(ngModel)]="searchTerm" (input)="onSearch()">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Popular Articles -->
+                <div class="popular-articles-section mb-5">
+                    <div class="section-header">
+                        <h4>
+                            <i class="fas fa-fire me-2"></i>
+                            Popular Articles
+                        </h4>
+                        <p class="section-subtitle">Most frequently viewed help articles</p>
+                    </div>
+                    <div class="popular-articles-grid">
+                        <div class="row">
+                            <div class="col-md-6 col-lg-4 mb-3" *ngFor="let article of popularArticles">
+                                <div class="popular-article-card" (click)="openArticle(article)">
+                                    <div class="article-badge">
+                                        <i class="fas fa-star"></i>
+                                        Popular
+                                    </div>
+                                    <h6>{{ article.title }}</h6>
+                                    <p class="article-excerpt">{{ article.content.substring(0, 100) }}...</p>
+                                    <div class="article-meta">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Updated {{ article.lastUpdated }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Articles -->
+                <div class="category-articles-section">
+                    <div class="section-header">
+                        <h4>
+                            <i [class]="activeCategoryObject?.icon" class="me-2"></i>
+                            {{ activeCategoryObject?.name }}
+                        </h4>
+                        <p class="section-subtitle">{{ activeCategoryObject?.description }}</p>
+                    </div>
+
+                    <div class="articles-list">
+                        <div class="article-item" *ngFor="let article of filteredArticles"
+                            (click)="openArticle(article)">
+                            <div class="article-content">
+                                <h5>{{ article.title }}</h5>
+                                <p class="article-excerpt">{{ article.content }}</p>
+                                <div class="article-meta">
+                                    <span class="badge" [class.bg-primary]="article.popular"
+                                        [class.bg-secondary]="!article.popular">
+                                        <i class="fas" [class.fa-star]="article.popular"
+                                            [class.fa-file]="!article.popular"></i>
+                                        {{ article.popular ? 'Popular' : 'Article' }}
+                                    </span>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>
+                                        Updated {{ article.lastUpdated }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="article-action">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div *ngIf="filteredArticles.length === 0" class="empty-state text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h5>No articles found</h5>
+                            <p class="text-muted">
+                                {{ searchTerm ? 'Try adjusting your search terms' : 'No articles available in this
+                                category' }}
+                            </p>
+                            <button *ngIf="searchTerm" class="btn btn-outline-primary"
+                                (click)="searchTerm = ''; onSearch()">
+                                Clear Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Section -->
+                <div class="faq-section mt-5">
+                    <div class="section-header">
+                        <h4>
+                            <i class="fas fa-question-circle me-2"></i>
+                            Frequently Asked Questions
+                        </h4>
+                        <p class="section-subtitle">Quick answers to common questions</p>
+                    </div>
+
+                    <div class="faq-categories">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <div class="faq-category-card">
+                                    <h6>
+                                        <i class="fas fa-shopping-cart me-2"></i>
+                                        Orders & Payments
+                                    </h6>
+                                    <div class="faq-list">
+                                        <div class="faq-item" *ngFor="let faq of getFAQsByCategory('Orders')">
+                                            <button class="faq-question" (click)="openArticle({ 
+                                                id: faq.id, 
+                                                title: faq.question, 
+                                                content: faq.answer, 
+                                                popular: faq.featured, 
+                                                lastUpdated: '2024-01-01' 
+                                            })">
+                                                {{ faq.question }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="faq-category-card">
+                                    <h6>
+                                        <i class="fas fa-box me-2"></i>
+                                        Products & Inventory
+                                    </h6>
+                                    <div class="faq-list">
+                                        <div class="faq-item" *ngFor="let faq of getFAQsByCategory('Products')">
+                                            <button class="faq-question" (click)="openArticle({ 
+                                                id: faq.id, 
+                                                title: faq.question, 
+                                                content: faq.answer, 
+                                                popular: faq.featured, 
+                                                lastUpdated: '2024-01-01' 
+                                            })">
+                                                {{ faq.question }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="faq-category-card">
+                                    <h6>
+                                        <i class="fas fa-cog me-2"></i>
+                                        Settings & Configuration
+                                    </h6>
+                                    <div class="faq-list">
+                                        <div class="faq-item" *ngFor="let faq of getFAQsByCategory('Settings')">
+                                            <button class="faq-question" (click)="openArticle({ 
+                                                id: faq.id, 
+                                                title: faq.question, 
+                                                content: faq.answer, 
+                                                popular: faq.featured, 
+                                                lastUpdated: '2024-01-01' 
+                                            })">
+                                                {{ faq.question }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="faq-category-card">
+                                    <h6>
+                                        <i class="fas fa-chart-bar me-2"></i>
+                                        Analytics & Reports
+                                    </h6>
+                                    <div class="faq-list">
+                                        <div class="faq-item" *ngFor="let faq of getFAQsByCategory('Analytics')">
+                                            <button class="faq-question" (click)="openArticle({ 
+                                                id: faq.id, 
+                                                title: faq.question, 
+                                                content: faq.answer, 
+                                                popular: faq.featured, 
+                                                lastUpdated: '2024-01-01' 
+                                            })">
+                                                {{ faq.question }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Resources -->
+                <div class="resources-section mt-5">
+                    <div class="section-header">
+                        <h4>
+                            <i class="fas fa-external-link-alt me-2"></i>
+                            Additional Resources
+                        </h4>
+                    </div>
+                    <div class="resources-grid">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="resource-card">
+                                    <div class="resource-icon">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    <div class="resource-content">
+                                        <h6>API Documentation</h6>
+                                        <p>Technical documentation for developers</p>
+                                        <button class="btn btn-outline-primary btn-sm">View Docs</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="resource-card">
+                                    <div class="resource-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="resource-content">
+                                        <h6>Community Forum</h6>
+                                        <p>Connect with other store owners</p>
+                                        <button class="btn btn-outline-primary btn-sm">Join Community</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="resource-card">
+                                    <div class="resource-icon">
+                                        <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                    <div class="resource-content">
+                                        <h6>Feature Requests</h6>
+                                        <p>Suggest new features and improvements</p>
+                                        <button class="btn btn-outline-primary btn-sm" (click)="requestFeature()">
+                                            Request Feature
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Article Modal -->
+    <div class="modal fade" [class.show]="showArticleModal" [style.display]="showArticleModal ? 'block' : 'none'">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-file-alt me-2"></i>
+                        {{ selectedArticle?.title }}
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeArticleModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="article-meta mb-4">
+                        <span class="badge" [class.bg-primary]="selectedArticle?.popular"
+                            [class.bg-secondary]="!selectedArticle?.popular">
+                            <i class="fas" [class.fa-star]="selectedArticle?.popular"
+                                [class.fa-file]="!selectedArticle?.popular"></i>
+                            {{ selectedArticle?.popular ? 'Popular Article' : 'Help Article' }}
+                        </span>
+                        <small class="text-muted ms-3">
+                            <i class="fas fa-clock me-1"></i>
+                            Last updated: {{ selectedArticle?.lastUpdated }}
+                        </small>
+                    </div>
+
+                    <div class="article-content">
+                        <p>{{ selectedArticle?.content }}</p>
+
+                        <div class="article-actions mt-4">
+                            <button class="btn btn-outline-primary me-2">
+                                <i class="fas fa-thumbs-up me-1"></i>
+                                Helpful
+                            </button>
+                            <button class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-thumbs-down me-1"></i>
+                                Not Helpful
+                            </button>
+                            <button class="btn btn-outline-info">
+                                <i class="fas fa-print me-1"></i>
+                                Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="w-100 text-center">
+                        <p class="text-muted mb-2">Was this article helpful?</p>
+                        <button class="btn btn-primary me-2" (click)="closeArticleModal()">
+                            Yes, Close
+                        </button>
+                        <button class="btn btn-outline-secondary" (click)="contactSupport()">
+                            No, Contact Support
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div class="modal fade" [class.show]="showArticleModal" (click)="closeArticleModal()">
+    </div>
+</div>

@@ -1,0 +1,676 @@
+<div class="container">
+    <div class="admin-users-page">
+        <!-- Header -->
+        <div class="page-header mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-5 fs-3 fw-bold text-dark">
+                        <i class="fas fa-users me-3 text-primary"></i>User Management
+                    </h1>
+                    <p class="text-muted">Manage customer accounts and administrator access</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" (click)="exportUsers()">
+                            <i class="fas fa-download me-2"></i>Export
+                        </button>
+                        <button class="btn btn-primary" (click)="createUser()">
+                            <i class="fas fa-user-plus me-2"></i>Add User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ usersStats.total }}</h3>
+                                <small>Total Users</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ usersStats.customers }}</h3>
+                                <small>Customers</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-user fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ usersStats.admins }}</h3>
+                                <small>Administrators</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-crown fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ usersStats.totalRevenue | currency:'USD':'symbol':'1.0-0' }}</h3>
+                                <small>Total Revenue</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="card filters-card mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <!-- Search -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Search Users</label>
+                        <div class="search-box">
+                            <i class="fas fa-search position-absolute mt-2 ms-3 text-muted"></i>
+                            <input type="text" class="form-control ps-5"
+                                placeholder="Search by name, email, or phone..." [(ngModel)]="searchTerm"
+                                (input)="applyFilters()">
+                        </div>
+                    </div>
+
+                    <!-- Role Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Role</label>
+                        <select class="form-select" [(ngModel)]="roleFilter" (change)="applyFilters()">
+                            <option value="all">All Roles</option>
+                            <option *ngFor="let role of roleOptions" [value]="role.value">
+                                {{ role.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Status</label>
+                        <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                            <option *ngFor="let status of statusOptions" [value]="status.value">
+                                {{ status.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Date Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Joined</label>
+                        <select class="form-select" [(ngModel)]="dateFilter" (change)="applyFilters()">
+                            <option *ngFor="let option of dateOptions" [value]="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Sort By</label>
+                        <select class="form-select" [(ngModel)]="selectedSort" (change)="applyFilters()">
+                            <option *ngFor="let option of sortOptions" [value]="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Reset -->
+                    <div class="col-md-1">
+                        <button class="btn btn-outline-secondary w-100"
+                            (click)="searchTerm = ''; roleFilter = 'all'; statusFilter = 'all'; dateFilter = 'all'; selectedSort = 'date-new'; applyFilters()">
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="card main-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>Users List
+                    <span class="badge bg-primary ms-2">{{ totalUsers }}</span>
+                </h5>
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">
+                        Showing {{ showingFrom }}-{{ showingTo }} of {{ totalUsers }} users
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading users...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="!isLoading && filteredUsers.length === 0" class="text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h5>No users found</h5>
+                    <p class="text-muted mb-4">No users match your current filters</p>
+                    <button class="btn btn-primary" (click)="createUser()">
+                        <i class="fas fa-user-plus me-2"></i>Add First User
+                    </button>
+                </div>
+
+                <!-- Users Table -->
+                <div *ngIf="!isLoading && filteredUsers.length > 0" class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="60">Avatar</th>
+                                <th>User Information</th>
+                                <th>Role</th>
+                                <th>Orders</th>
+                                <th>Total Spent</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let user of paginatedUsers" class="user-row">
+                                <td>
+                                    <img [src]="user.avatar" [alt]="user.name" class="user-avatar rounded-circle"
+                                        (error)="user.avatar = 'https://ui-avatars.com/api/?name=User&background=ccc&color=fff'">
+                                </td>
+                                <td>
+                                    <div class="user-info">
+                                        <h6 class="mb-1">{{ user.name }}</h6>
+                                        <small class="text-muted d-block">{{ user.email }}</small>
+                                        <small *ngIf="user.phone" class="text-muted">{{ user.phone }}</small>
+                                        <small *ngIf="isCurrentUser(user)" class="badge bg-info mt-1">You</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">
+                                        {{ user.role | titlecase }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <div class="h6 mb-1">{{ getUserOrderCount(user.id) }}</div>
+                                        <small class="text-muted">orders</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-success fw-bold">${{ getUserTotalSpent(user.id) | number:'1.2-2' }}
+                                    </div>
+                                    <small class="text-muted">lifetime</small>
+                                </td>
+                                <td>
+                                    <span class="badge" [ngClass]="'bg-' + getUserStatus(user.id).class">
+                                        {{ getUserStatus(user.id).text }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="text-nowrap">
+                                        <div class="small">{{ user.createdAt || 'N/A' }}</div>
+                                        <small class="text-muted">{{ getDaysSinceJoined(user.createdAt || '2024-01-01')
+                                            }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" (click)="viewUserDetails(user)"
+                                            title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-warning" (click)="editUser(user)"
+                                            title="Edit User">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" (click)="confirmDelete(user)"
+                                            [disabled]="isCurrentUser(user)" title="Delete User">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div *ngIf="!isLoading && filteredUsers.length > 0" class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                Showing {{ showingFrom }}-{{ showingTo }} of {{ totalUsers }} users
+                            </small>
+                        </div>
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item" [class.disabled]="currentPage === 1">
+                                    <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
+                                </li>
+
+                                <li *ngFor="let page of getPageNumbers()" class="page-item"
+                                    [class.active]="page === currentPage">
+                                    <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+                                </li>
+
+                                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                    <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Details Modal -->
+        <div class="modal fade show d-block" [class.show]="showUserModal" style="background: rgba(0,0,0,0.5)"
+            *ngIf="showUserModal && selectedUser">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-user me-2 text-primary"></i>
+                            User Details - {{ selectedUser.name }}
+                        </h5>
+                        <button type="button" class="btn-close" (click)="closeUserModal()"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- User Profile -->
+                            <div class="col-md-4 text-center mb-4">
+                                <img [src]="selectedUser.avatar" [alt]="selectedUser.name"
+                                    class="user-avatar-lg rounded-circle mb-3">
+                                <h4>{{ selectedUser.name }}</h4>
+                                <span class="badge" [ngClass]="getRoleBadgeClass(selectedUser.role)">
+                                    {{ selectedUser.role | titlecase }}
+                                </span>
+                                <div *ngIf="isCurrentUser(selectedUser)" class="mt-2">
+                                    <span class="badge bg-info">Current User</span>
+                                </div>
+                            </div>
+
+                            <!-- User Information -->
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <h6 class="fw-semibold mb-3">Contact Information</h6>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="text-muted">Email:</span>
+                                                <span>{{ selectedUser.email }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="text-muted">Phone:</span>
+                                                <span>{{ selectedUser.phone || 'Not provided' }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="text-muted">Member Since:</span>
+                                                <span>{{ selectedUser.createdAt || 'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mb-3">
+                                        <h6 class="fw-semibold mb-3">Address Information</h6>
+                                        <div class="info-grid">
+                                            <div class="info-item">
+                                                <span class="text-muted">Address:</span>
+                                                <span>{{ selectedUser.address || 'Not provided' }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="text-muted">City:</span>
+                                                <span>{{ selectedUser.city || 'Not provided' }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="text-muted">Country:</span>
+                                                <span>{{ selectedUser.country || 'Not provided' }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="text-muted">ZIP Code:</span>
+                                                <span>{{ selectedUser.zipCode || 'Not provided' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Statistics -->
+                        <div class="row mt-4">
+                            <div class="col-md-3 text-center">
+                                <div class="stat-box">
+                                    <div class="h4 text-primary mb-1">{{ getUserOrderCount(selectedUser.id) }}</div>
+                                    <small class="text-muted">Total Orders</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="stat-box">
+                                    <div class="h4 text-success mb-1">${{ getUserTotalSpent(selectedUser.id) |
+                                        number:'1.2-2' }}</div>
+                                    <small class="text-muted">Total Spent</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="stat-box">
+                                    <div class="h4 text-info mb-1">{{ getDaysSinceJoined(selectedUser.createdAt ||
+                                        '2024-01-01') }}</div>
+                                    <small class="text-muted">Member For</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="stat-box">
+                                    <div class="h4 text-warning mb-1">{{ getUserStatus(selectedUser.id).text }}</div>
+                                    <small class="text-muted">Status</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Orders -->
+                        <div class="mt-4" *ngIf="getUserOrderCount(selectedUser.id) > 0">
+                            <h6 class="fw-semibold mb-3">Recent Orders</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let order of orderFilter">
+                                            <td>#{{ order.id }}</td>
+                                            <td>{{ order.date }}</td>
+                                            <td class="text-success">${{ order.total | number:'1.2-2' }}</td>
+                                            <td>
+                                                <span class="badge" [ngClass]="getRoleBadgeClass(order.status)">
+                                                    {{ order.status }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" (click)="closeUserModal()">
+                            Close
+                        </button>
+                        <button type="button" class="btn btn-warning" (click)="editUser(selectedUser)">
+                            <i class="fas fa-edit me-2"></i>Edit User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit User Modal -->
+        <div class="modal fade show d-block" [class.show]="showEditModal" style="background: rgba(0,0,0,0.5)"
+            *ngIf="showEditModal && selectedUser">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-edit me-2 text-warning"></i>
+                            Edit User - {{ selectedUser.name }}
+                        </h5>
+                        <button type="button" class="btn-close" (click)="closeEditModal()"></button>
+                    </div>
+
+                    <form [formGroup]="userForm" (ngSubmit)="updateUser()">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Full Name</label>
+                                    <input type="text" class="form-control" formControlName="name"
+                                        placeholder="Enter full name">
+                                    <div *ngIf="f['name'].touched && f['name'].invalid" class="text-danger small">
+                                        <span *ngIf="f['name'].errors?.['required']">Name is required</span>
+                                        <span *ngIf="f['name'].errors?.['minlength']">Name must be at least 2
+                                            characters</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Email Address</label>
+                                    <input type="email" class="form-control" formControlName="email"
+                                        placeholder="Enter email address">
+                                    <div *ngIf="f['email'].touched && f['email'].invalid" class="text-danger small">
+                                        <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+                                        <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Phone Number</label>
+                                    <input type="tel" class="form-control" formControlName="phone"
+                                        placeholder="Enter phone number">
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Role</label>
+                                    <select class="form-select" formControlName="role">
+                                        <option *ngFor="let role of roleOptions" [value]="role.value">
+                                            {{ role.label }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-semibold">Address</label>
+                                    <input type="text" class="form-control" formControlName="address"
+                                        placeholder="Enter street address">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">City</label>
+                                    <input type="text" class="form-control" formControlName="city"
+                                        placeholder="Enter city">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">Country</label>
+                                    <input type="text" class="form-control" formControlName="country"
+                                        placeholder="Enter country">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">ZIP Code</label>
+                                    <input type="text" class="form-control" formControlName="zipCode"
+                                        placeholder="Enter ZIP code">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" (click)="closeEditModal()">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-warning" [disabled]="userForm.invalid">
+                                <i class="fas fa-save me-2"></i>Update User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create User Modal -->
+        <div class="modal fade show d-block" [class.show]="showCreateModal" style="background: rgba(0,0,0,0.5)"
+            *ngIf="showCreateModal">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-user-plus me-2 text-success"></i>
+                            Create New User
+                        </h5>
+                        <button type="button" class="btn-close" (click)="closeCreateModal()"></button>
+                    </div>
+
+                    <form [formGroup]="createUserForm" (ngSubmit)="saveNewUser()">
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Full Name</label>
+                                    <input type="text" class="form-control" formControlName="name"
+                                        placeholder="Enter full name">
+                                    <div *ngIf="cf['name'].touched && cf['name'].invalid" class="text-danger small">
+                                        <span *ngIf="cf['name'].errors?.['required']">Name is required</span>
+                                        <span *ngIf="cf['name'].errors?.['minlength']">Name must be at least 2
+                                            characters</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Email Address</label>
+                                    <input type="email" class="form-control" formControlName="email"
+                                        placeholder="Enter email address">
+                                    <div *ngIf="cf['email'].touched && cf['email'].invalid" class="text-danger small">
+                                        <span *ngIf="cf['email'].errors?.['required']">Email is required</span>
+                                        <span *ngIf="cf['email'].errors?.['email']">Please enter a valid email</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-semibold">Password</label>
+                                    <input type="password" class="form-control" formControlName="password"
+                                        placeholder="Enter password">
+                                    <div *ngIf="cf['password'].touched && cf['password'].invalid"
+                                        class="text-danger small">
+                                        <span *ngIf="cf['password'].errors?.['required']">Password is required</span>
+                                        <span *ngIf="cf['password'].errors?.['minlength']">Password must be at least 6
+                                            characters</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Phone Number</label>
+                                    <input type="tel" class="form-control" formControlName="phone"
+                                        placeholder="Enter phone number">
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Role</label>
+                                    <select class="form-select" formControlName="role">
+                                        <option *ngFor="let role of roleOptions" [value]="role.value">
+                                            {{ role.label }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label class="form-label fw-semibold">Address</label>
+                                    <input type="text" class="form-control" formControlName="address"
+                                        placeholder="Enter street address">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">City</label>
+                                    <input type="text" class="form-control" formControlName="city"
+                                        placeholder="Enter city">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">Country</label>
+                                    <input type="text" class="form-control" formControlName="country"
+                                        placeholder="Enter country">
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">ZIP Code</label>
+                                    <input type="text" class="form-control" formControlName="zipCode"
+                                        placeholder="Enter ZIP code">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" (click)="closeCreateModal()">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-success" [disabled]="createUserForm.invalid">
+                                <i class="fas fa-user-plus me-2"></i>Create User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade show d-block" [class.show]="showDeleteModal" style="background: rgba(0,0,0,0.5)"
+            *ngIf="showDeleteModal && selectedUser">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete user <strong>"{{ selectedUser.name }}"</strong>?</p>
+                        <div class="alert alert-warning">
+                            <small>
+                                <i class="fas fa-warning me-2"></i>
+                                This action cannot be undone. All user data including order history will be permanently
+                                removed.
+                                {{ isCurrentUser(selectedUser) ? 'You cannot delete your own account!' : '' }}
+                            </small>
+                        </div>
+                        <div class="user-stats small text-muted">
+                            <div>Orders: {{ getUserOrderCount(selectedUser.id) }}</div>
+                            <div>Total Spent: ${{ getUserTotalSpent(selectedUser.id) | number:'1.2-2' }}</div>
+                            <div>Member Since: {{ selectedUser.createdAt || 'N/A' }}</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" (click)="closeDeleteModal()">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-danger" (click)="deleteUser()"
+                            [disabled]="isCurrentUser(selectedUser)">
+                            <i class="fas fa-trash me-2"></i>Delete User
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

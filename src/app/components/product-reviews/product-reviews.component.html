@@ -1,0 +1,341 @@
+<div class="product-reviews">
+    <!-- Header Section -->
+    <div class="reviews-header" *ngIf="showHeader">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h3 class="reviews-title">
+                    <i class="fas fa-star text-warning me-2"></i>
+                    Customer Reviews
+                </h3>
+                <p class="reviews-subtitle text-muted">See what our customers are saying</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <button class="btn btn-primary btn-lg" (click)="openReviewForm()" [disabled]="hasUserReviewed()">
+                    <i class="fas fa-edit me-2"></i>
+                    {{ hasUserReviewed() ? 'Review Submitted' : 'Write a Review' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Summary -->
+    <div class="reviews-summary card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <!-- Overall Rating -->
+                <div class="col-lg-4 text-center mb-4 mb-lg-0">
+                    <div class="overall-rating">
+                        <div class="rating-score">
+                            <span class="score">{{ getAverageRating() | number:'1.1-1' }}</span>
+                            <span class="out-of">/5</span>
+                        </div>
+                        <div class="rating-stars mb-2">
+                            <span class="stars">
+                                <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star"
+                                    [class.text-warning]="star <= getAverageRating()"
+                                    [class.text-muted]="star > getAverageRating()"></i>
+                            </span>
+                        </div>
+                        <div class="rating-count text-muted">
+                            Based on {{ getTotalReviews() }} review{{ getTotalReviews() !== 1 ? 's' : '' }}
+                        </div>
+                        <div class="recommendation-rate mt-2">
+                            <span class="badge bg-success">
+                                {{ getRecommendationPercentage() | number:'1.0-0' }}% recommend this product
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rating Distribution -->
+                <div class="col-lg-5 mb-4 mb-lg-0">
+                    <div class="rating-distribution">
+                        <h6 class="distribution-title">Rating Breakdown</h6>
+                        <div *ngFor="let dist of getRatingDistribution().reverse()" class="distribution-item">
+                            <div class="distribution-row">
+                                <span class="distribution-stars">
+                                    {{ dist.rating }} <i class="fas fa-star text-warning"></i>
+                                </span>
+                                <div class="distribution-bar">
+                                    <div class="progress">
+                                        <div class="progress-bar bg-warning" [style.width.%]="dist.percentage"
+                                            role="progressbar"></div>
+                                    </div>
+                                </div>
+                                <span class="distribution-count">
+                                    {{ dist.count }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Stats -->
+                <div class="col-lg-3">
+                    <div class="review-stats">
+                        <h6 class="stats-title">Review Highlights</h6>
+                        <div class="stat-item">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <span>{{ getRatingDistribution()[4].count }} 5-star reviews</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-comments text-primary me-2"></i>
+                            <span>{{ getTotalReviews() }} total reviews</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-thumbs-up text-info me-2"></i>
+                            <span>{{ getRecommendationPercentage() | number:'1.0-0' }}% recommendation rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Write Review Modal -->
+    <div class="modal fade show d-block" [class.show]="showReviewForm" style="background: rgba(0,0,0,0.5)"
+        *ngIf="showReviewForm">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2 text-primary"></i>
+                        Write a Review
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeReviewForm()"></button>
+                </div>
+
+                <form [formGroup]="reviewForm" (ngSubmit)="submitReview()">
+                    <div class="modal-body">
+                        <!-- Rating Selection -->
+                        <div class="rating-section mb-4">
+                            <label class="form-label fw-semibold">Overall Rating *</label>
+                            <div class="rating-stars-input">
+                                <div class="stars-container">
+                                    <span *ngFor="let star of [1,2,3,4,5]" class="star" (click)="setRating(star)"
+                                        (mouseenter)="setHoverRating(star)" (mouseleave)="clearHoverRating()">
+                                        <i [class]="getStarClass(star)"></i>
+                                    </span>
+                                </div>
+                                <div class="rating-text" *ngIf="selectedRating > 0">
+                                    <small class="text-muted">
+                                        {{ selectedRating }} star{{ selectedRating !== 1 ? 's' : '' }} -
+                                        {{ getRatingText(selectedRating) }}
+                                    </small>
+                                </div>
+                                <div *ngIf="f['rating'].touched && f['rating'].invalid" class="text-danger small">
+                                    Please select a rating
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Review Title -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Review Title *</label>
+                            <input type="text" class="form-control" formControlName="title"
+                                placeholder="Summarize your experience in a few words">
+                            <div *ngIf="f['title'].touched && f['title'].invalid" class="text-danger small">
+                                <span *ngIf="f['title'].errors?.['required']">Title is required</span>
+                                <span *ngIf="f['title'].errors?.['minlength']">Title must be at least 5
+                                    characters</span>
+                            </div>
+                        </div>
+
+                        <!-- Review Comment -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Your Review *</label>
+                            <textarea class="form-control" formControlName="comment" rows="5"
+                                placeholder="Share details of your experience with this product..."></textarea>
+                            <div class="d-flex justify-content-between mt-1">
+                                <div *ngIf="f['comment'].touched && f['comment'].invalid" class="text-danger small">
+                                    <span *ngIf="f['comment'].errors?.['required']">Review text is required</span>
+                                    <span *ngIf="f['comment'].errors?.['minlength']">Review must be at least 10
+                                        characters</span>
+                                </div>
+                                <small class="text-muted">
+                                    {{ f['comment'].value?.length || 0 }}/1000 characters
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Recommendation -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" formControlName="recommend"
+                                    id="recommendProduct">
+                                <label class="form-check-label fw-semibold" for="recommendProduct">
+                                    I recommend this product
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Review Guidelines -->
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading mb-2">
+                                <i class="fas fa-info-circle me-2"></i>Review Guidelines
+                            </h6>
+                            <ul class="mb-0 small">
+                                <li>Be specific about your experience</li>
+                                <li>Focus on the product features and quality</li>
+                                <li>Keep your review honest and constructive</li>
+                                <li>Avoid personal information or offensive language</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" (click)="closeReviewForm()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" [disabled]="reviewForm.invalid || isLoading">
+                            <span *ngIf="!isLoading">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Review
+                            </span>
+                            <span *ngIf="isLoading">
+                                <i class="fas fa-spinner fa-spin me-2"></i>Submitting...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Filter and Sort -->
+    <div class="reviews-controls card mb-4">
+        <div class="card-body py-3">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-2 mb-md-0">
+                    <span class="text-muted">
+                        Showing {{ showingFrom }}-{{ showingTo }} of {{ getTotalReviews() }} reviews
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex gap-2 justify-content-md-end">
+                        <select class="form-select form-select-sm" style="width: auto;" [(ngModel)]="filterByRating"
+                            (change)="loadReviews()">
+                            <option [value]="0">All Ratings</option>
+                            <option [value]="5">5 Stars</option>
+                            <option [value]="4">4 Stars</option>
+                            <option [value]="3">3 Stars</option>
+                            <option [value]="2">2 Stars</option>
+                            <option [value]="1">1 Star</option>
+                        </select>
+                        <select class="form-select form-select-sm" style="width: auto;" [(ngModel)]="sortBy"
+                            (change)="loadReviews()">
+                            <option *ngFor="let option of sortOptions" [value]="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p>Loading reviews...</p>
+    </div>
+
+    <!-- No Reviews State -->
+    <div *ngIf="!isLoading && reviews.length === 0" class="text-center py-5">
+        <div class="empty-reviews">
+            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+            <h5>No Reviews Yet</h5>
+            <p class="text-muted mb-4">Be the first to share your experience with this product!</p>
+            <button class="btn btn-primary" (click)="openReviewForm()">
+                <i class="fas fa-edit me-2"></i>Write First Review
+            </button>
+        </div>
+    </div>
+
+    <!-- Reviews List -->
+    <div *ngIf="!isLoading && reviews.length > 0" class="reviews-list">
+        <div *ngFor="let review of paginatedReviews" class="review-item card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <!-- Review Header -->
+                        <div class="review-header mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="reviewer-avatar">
+                                    <img [src]="getUserAvatar(review.userId)" [alt]="review.userName"
+                                        class="rounded-circle">
+                                </div>
+                                <div class="reviewer-info">
+                                    <h6 class="reviewer-name mb-1">{{ review.userName }}</h6>
+                                    <div class="review-meta">
+                                        <span class="review-date text-muted">{{ getTimeAgo(review.date) }}</span>
+                                        <span *ngIf="review.recommend != false" class="badge bg-success ms-2">
+                                            <i class="fas fa-thumbs-up me-1"></i>Recommends
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Review Rating -->
+                        <div class="review-rating mb-2">
+                            <span class="stars">
+                                <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star"
+                                    [class.text-warning]="star <= review.rating"
+                                    [class.text-muted]="star > review.rating"></i>
+                            </span>
+                            <span class="rating-value ms-2 fw-semibold">{{ review.rating }}/5</span>
+                        </div>
+
+                        <!-- Review Title -->
+                        <h6 class="review-title mb-2" *ngIf="review.title">{{ review.title }}</h6>
+
+                        <!-- Review Content -->
+                        <p class="review-content mb-0">{{ review.comment }}</p>
+                    </div>
+
+                    <div class="col-md-4 text-md-end">
+                        <!-- Review Actions -->
+                        <div class="review-actions">
+                            <button class="btn btn-outline-primary btn-sm me-2" title="Helpful">
+                                <i class="fas fa-thumbs-up me-1"></i>
+                                Helpful
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" title="Report">
+                                <i class="fas fa-flag"></i>
+                            </button>
+                        </div>
+
+                        <!-- Verified Purchase Badge -->
+                        <div class="verified-badge mt-2">
+                            <span class="badge bg-light text-dark">
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                                Verified Purchase
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="!isLoading && reviews.length > 0 && totalPages > 1" class="reviews-pagination mt-4">
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item" [class.disabled]="currentPage === 1">
+                    <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
+                </li>
+
+                <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+                    <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+                </li>
+
+                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                    <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

@@ -1,0 +1,236 @@
+.footer {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    margin-top: auto;
+}
+
+.newsletter-section {
+    /* background: rgba(255, 255, 255, 0.05); */
+    backdrop-filter: blur(10px);
+}
+
+.footer-brand h3 {
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.contact-info i {
+    width: 20px;
+    text-align: center;
+}
+
+.footer-link {
+    transition: all 0.3s ease;
+    position: relative;
+    padding-left: 0;
+}
+
+.footer-link:hover {
+    color: #ffc107 !important;
+    padding-left: 8px;
+    text-decoration: none !important;
+}
+
+.footer-link::before {
+    content: "▸";
+    position: absolute;
+    left: -12px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    color: #ffc107;
+}
+
+.footer-link:hover::before {
+    opacity: 1;
+    left: -8px;
+}
+
+/* Social Icons */
+.social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    color: white !important;
+    font-size: 1.1rem;
+}
+
+.social-icon:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Payment Methods */
+.payment-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    font-size: 1.5rem;
+}
+
+.payment-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Trust Badges */
+.trust-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.trust-badge:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* App Download Buttons */
+.app-download .btn {
+    border-radius: 25px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.app-download .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* Back to Top Button */
+.btn-outline-warning {
+    border-radius: 25px;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+/* Newsletter Form */
+.newsletter-section .form-control {
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 25px 0 0 25px;
+}
+
+.newsletter-section .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.newsletter-section .form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ffc107;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    color: white;
+}
+
+.newsletter-section .btn {
+    border-radius: 0 25px 25px 0;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer-brand h3 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .contact-info {
+        text-align: center;
+    }
+
+    .social-links,
+    .payment-methods {
+        justify-content: center !important;
+    }
+
+    .trust-badges .row > div {
+        margin-bottom: 1rem;
+    }
+
+    .footer-links {
+        text-align: center !important;
+    }
+
+    .footer-links a {
+        display: block;
+        margin: 0.5rem 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .newsletter-section .input-group {
+        flex-direction: column;
+    }
+
+    .newsletter-section .form-control {
+        border-radius: 25px;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .newsletter-section .btn {
+        border-radius: 25px;
+        width: 100%;
+    }
+
+    .trust-badge {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Animation for scroll to top */
+@keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.btn-outline-warning:hover i {
+    animation: bounce 1s;
+}
+
+/* Enhanced hover effects */
+.main-footer a,
+.copyright-section a {
+    position: relative;
+    overflow: hidden;
+}
+
+.main-footer a::after,
+.copyright-section a::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #ffc107;
+    transition: width 0.3s ease;
+}
+
+.main-footer a:hover::after,
+.copyright-section a:hover::after {
+    width: 100%;
+}

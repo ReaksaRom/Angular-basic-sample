@@ -1,0 +1,611 @@
+.admin-analytics-page {
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.page-header {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.filters-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Metric Cards */
+.metric-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+
+.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%) !important;
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%) !important;
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+}
+
+.metric-icon {
+    opacity: 0.8;
+}
+
+.metric-growth .badge {
+    font-size: 0.75rem;
+}
+
+/* Charts */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.25rem;
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+.chart-placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Revenue Chart */
+.revenue-chart {
+    padding: 1rem;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.chart-bars {
+    display: flex;
+    align-items: end;
+    gap: 1rem;
+    height: 200px;
+    padding: 0 1rem;
+}
+
+.chart-bar-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.bar-labels {
+    margin-bottom: 0.5rem;
+}
+
+.bars-container {
+    display: flex;
+    gap: 4px;
+    align-items: end;
+    height: 100%;
+    width: 100%;
+}
+
+.bar {
+    position: relative;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.3s ease;
+    min-width: 20px;
+}
+
+.bar:hover {
+    opacity: 0.8;
+    transform: scaleY(1.05);
+}
+
+.previous-bar {
+    background: #6c757d;
+    height: 60%;
+}
+
+.current-bar {
+    background: #28a745;
+    height: 80%;
+}
+
+.bar-value {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* Pie Chart */
+.pie-chart {
+    flex-direction: row;
+    align-items: center;
+    padding: 1rem;
+}
+
+.pie-chart-visual {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    overflow: hidden;
+}
+
+.pie-slice {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
+    transform-origin: center;
+    border-radius: 50%;
+}
+
+.pie-slice::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%);
+    transform: rotate(var(--percentage));
+}
+
+.pie-legend {
+    flex: 1;
+    padding-left: 1rem;
+}
+
+.pie-legend .legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+}
+
+.legend-label {
+    flex: 1;
+    margin: 0 0.5rem;
+    font-size: 0.875rem;
+}
+
+.legend-value {
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Line Chart */
+.line-chart {
+    padding: 1rem;
+}
+
+.line-chart-grid {
+    position: relative;
+    height: 200px;
+    margin-top: 2rem;
+}
+
+.grid-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.grid-line {
+    border-top: 1px solid #e9ecef;
+}
+
+.line-data {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.line {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    transform: translate(-50%, 50%);
+}
+
+.line::before {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 100px;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.new-customers {
+    background: #007bff;
+}
+
+.new-customers::before {
+    background: linear-gradient(to top, #007bff, transparent);
+}
+
+.returning-customers {
+    background: #28a745;
+}
+
+.returning-customers::before {
+    background: linear-gradient(to top, #28a745, transparent);
+}
+
+.x-axis {
+    position: absolute;
+    bottom: -2rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+}
+
+.x-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* Top Products & Customers */
+.top-products-list,
+.top-customers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.product-item,
+.customer-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.product-item:hover,
+.customer-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.product-rank,
+.customer-rank {
+    width: 30px;
+    height: 30px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-right: 1rem;
+}
+
+.product-image {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 1rem;
+}
+
+.customer-avatar {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    margin-right: 1rem;
+}
+
+.product-info,
+.customer-info {
+    flex: 1;
+}
+
+.product-name,
+.customer-name {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.product-revenue,
+.customer-spending {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* Activity Feed */
+.activity-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    background: #f8f9fa;
+}
+
+.activity-avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.activity-avatar img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.activity-badge {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    color: white;
+    border: 2px solid white;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Insights */
+.insight-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border-left: 4px solid #28a745;
+}
+
+.insight-warning {
+    border-left-color: #ffc107;
+}
+
+.insight-info {
+    border-left-color: #17a2b8;
+}
+
+.insight-icon {
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.2rem;
+}
+
+.insight-content h6 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.insight-content p {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-2px);
+}
+
+/* Loading Spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 1rem;
+    }
+
+    .display-5 {
+        font-size: 2rem;
+    }
+
+    .chart-bars {
+        gap: 0.5rem;
+    }
+
+    .pie-chart {
+        flex-direction: column;
+    }
+
+    .pie-legend {
+        padding-left: 0;
+        padding-top: 1rem;
+        width: 100%;
+    }
+
+    .activity-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .insight-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .metric-card .card-body {
+        padding: 1rem;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+
+    .product-item,
+    .customer-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .product-rank,
+    .customer-rank {
+        margin-right: 0;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Custom scrollbars */
+.activity-feed,
+.top-products-list,
+.top-customers-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-feed::-webkit-scrollbar,
+.top-products-list::-webkit-scrollbar,
+.top-customers-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.activity-feed::-webkit-scrollbar-track,
+.top-products-list::-webkit-scrollbar-track,
+.top-customers-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.activity-feed::-webkit-scrollbar-thumb,
+.top-products-list::-webkit-scrollbar-thumb,
+.top-customers-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.activity-feed::-webkit-scrollbar-thumb:hover,
+.top-products-list::-webkit-scrollbar-thumb:hover,
+.top-customers-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

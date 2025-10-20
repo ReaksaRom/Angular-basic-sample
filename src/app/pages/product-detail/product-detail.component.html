@@ -1,0 +1,297 @@
+<div class="container mt-4" *ngIf="product">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a routerLink="/" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item"><a href="#" class="text-decoration-none"
+                    (click)="navigateToCategory(product.categoryId); $event.preventDefault()">{{
+                    getCategoryName(product.categoryId) }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-lg-6 mb-4">
+            <div class="product-image-container">
+                <img [src]="product.imageUrl" [alt]="product.name" class="product-image img-fluid rounded-3 shadow">
+                <div *ngIf="product.discount > 0" class="discount-badge">
+                    -{{ product.discount }}% OFF
+                </div>
+                <div *ngIf="product.featured" class="featured-badge">
+                    ⭐ Featured
+                </div>
+            </div>
+
+            <!-- Image Gallery (Placeholder) -->
+            <div class="image-gallery mt-3">
+                <div class="row g-2">
+                    <div class="col-3" *ngFor="let i of [1,2,3,4]">
+                        <img [src]="product.imageUrl" [alt]="product.name + ' ' + i"
+                            class="img-thumbnail gallery-thumb">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-lg-6">
+            <div class="product-info">
+                <!-- Category & Brand -->
+                <div class="category-badge mb-2">
+                    <span class="badge bg-light text-dark">{{ getCategoryName(product.categoryId) }}</span>
+                </div>
+
+                <!-- Product Title -->
+                <h1 class="product-title display-6 fw-bold mb-2">{{ product.name }}</h1>
+
+                <!-- Rating -->
+                <div class="rating-section mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="star-rating me-2">
+                            <span *ngFor="let star of [1,2,3,4,5]" class="star"
+                                [class.filled]="star <= getAverageRating()" (click)="setTemporaryRating(star)"
+                                (mouseenter)="hoverRating = star" (mouseleave)="hoverRating = 0">
+                                ★
+                            </span>
+                        </div>
+                        <span class="rating-value fw-bold text-warning me-2">{{ getAverageRating() | number:'1.1-1'
+                            }}</span>
+                        <span class="review-count text-muted">({{ getReviews().length }} reviews)</span>
+                    </div>
+                    <small class="text-muted">Click stars to rate this product</small>
+                </div>
+
+                <!-- Price Section -->
+                <div class="price-section mb-3">
+                    <div class="d-flex align-items-center">
+                        <span class="current-price h2 text-primary fw-bold me-2">
+                            ${{ getDiscountedPrice() | number:'1.2-2' }}
+                        </span>
+                        <span *ngIf="product.discount > 0"
+                            class="original-price h5 text-muted text-decoration-line-through">
+                            ${{ product.price | number:'1.2-2' }}
+                        </span>
+                        <span *ngIf="product.discount > 0" class="discount-percent badge bg-danger ms-2">
+                            Save {{ product.discount }}%
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Stock Status -->
+                <div class="stock-status mb-4">
+                    <span class="badge" [class]="getStockBadgeClass()">
+                        <i class="fas" [class.fa-check]="product.stock > 0" [class.fa-times]="product.stock === 0"></i>
+                        {{ getStockStatus() }}
+                    </span>
+                    <small class="text-muted ms-2">{{ product.stock }} units available</small>
+                </div>
+
+                <!-- Description -->
+                <div class="description-section mb-4">
+                    <h5 class="fw-bold mb-2">Description</h5>
+                    <p class="product-description lead">{{ product.description }}</p>
+                </div>
+
+                <!-- Quantity Selector -->
+                <div class="quantity-section mb-4">
+                    <label class="form-label fw-bold">Quantity:</label>
+                    <div class="quantity-selector">
+                        <button class="btn btn-outline-secondary quantity-btn" type="button"
+                            (click)="decreaseQuantity()" [disabled]="quantity <= 1">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input type="number" class="form-control quantity-input text-center" [(ngModel)]="quantity"
+                            min="1" [max]="product.stock" (change)="validateQuantity()">
+                        <button class="btn btn-outline-secondary quantity-btn" type="button"
+                            (click)="increaseQuantity()" [disabled]="quantity >= product.stock">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons mb-4">
+                    <button class="btn btn-primary btn-lg w-100 mb-2 add-to-cart-btn" (click)="addToCart()"
+                        [disabled]="product.stock === 0">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Add to Cart - ${{ (getDiscountedPrice() * quantity) | number:'1.2-2' }}
+                    </button>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button class="btn btn-outline-primary w-100 wishlist-btn" (click)="toggleWishlist()"
+                                [class.btn-danger]="isInWishlist()" [class.text-white]="isInWishlist()">
+                                <i class="fas" [class.fa-heart]="isInWishlist()" [class.fa-heart]="!isInWishlist()"></i>
+                                {{ isInWishlist() ? 'Remove from Wishlist' : 'Add to Wishlist' }}
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-secondary w-100 share-btn" (click)="shareProduct()">
+                                <i class="fas fa-share-alt me-1"></i>
+                                Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="features-section">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="feature-item">
+                                <i class="fas fa-shipping-fast text-success me-2"></i>
+                                <small>Free Shipping</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-item">
+                                <i class="fas fa-undo-alt text-info me-2"></i>
+                                <small>30-Day Returns</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-item">
+                                <i class="fas fa-shield-alt text-warning me-2"></i>
+                                <small>1-Year Warranty</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="feature-item">
+                                <i class="fas fa-headset text-primary me-2"></i>
+                                <small>24/7 Support</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="reviews-section">
+                <div class="card">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0">
+                            <i class="fas fa-star text-warning me-2"></i>
+                            Customer Reviews
+                            <span class="badge bg-primary ms-2">{{ getReviews().length }}</span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Rating Summary -->
+                        <div class="rating-summary mb-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-4 text-center">
+                                    <div class="average-rating">
+                                        <div class="display-4 fw-bold text-warning">{{ getAverageRating() |
+                                            number:'1.1-1' }}</div>
+                                        <div class="star-rating large">
+                                            <span *ngFor="let star of [1,2,3,4,5]" class="star"
+                                                [class.filled]="star <= getAverageRating()">
+                                                ★
+                                            </span>
+                                        </div>
+                                        <div class="text-muted">{{ getReviews().length }} reviews</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="rating-bars">
+                                        <div *ngFor="let rating of [5,4,3,2,1]" class="rating-bar-item mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <span class="rating-label me-2">{{ rating }} ★</span>
+                                                <div class="progress flex-grow-1 me-2">
+                                                    <div class="progress-bar bg-warning"
+                                                        [style.width]="getRatingPercentage(rating) + '%'">
+                                                    </div>
+                                                </div>
+                                                <span class="rating-count text-muted">{{ getRatingCount(rating)
+                                                    }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Review Form -->
+                        <div class="add-review-form mb-4" *ngIf="isLoggedIn">
+                            <h5 class="mb-3">Write a Review</h5>
+                            <form (ngSubmit)="submitReview()" #reviewForm="ngForm">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Your Rating</label>
+                                    <div class="star-rating editable">
+                                        <span *ngFor="let star of [1,2,3,4,5]" class="star"
+                                            [class.filled]="star <= newReview.rating" (click)="newReview.rating = star">
+                                            ★
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Review Title</label>
+                                    <input type="text" class="form-control" [(ngModel)]="newReview.title" name="title"
+                                        placeholder="Summarize your experience" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Your Review</label>
+                                    <textarea class="form-control" rows="4" [(ngModel)]="newReview.comment"
+                                        name="comment" placeholder="Share your thoughts about this product..."
+                                        required></textarea>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" [(ngModel)]="newReview.recommend"
+                                        name="recommend" id="recommendCheck">
+                                    <label class="form-check-label" for="recommendCheck">
+                                        I recommend this product
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary"
+                                    [disabled]="!reviewForm.form.valid || newReview.rating === 0">
+                                    Submit Review
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Reviews List -->
+                        <div class="reviews-list">
+                            <div *ngFor="let review of getReviews()" class="review-item mb-4 pb-4 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">{{ review.title }}</h6>
+                                        <div class="star-rating small">
+                                            <span *ngFor="let star of [1,2,3,4,5]" class="star"
+                                                [class.filled]="star <= review.rating">
+                                                ★
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">{{ review.date }}</small>
+                                </div>
+                                <p class="review-comment mb-2">{{ review.comment }}</p>
+                                <div class="review-meta">
+                                    <span class="reviewer-name fw-bold me-2">{{ review.userName }}</span>
+                                    <span *ngIf="review.recommend" class="badge bg-success me-2">
+                                        <i class="fas fa-thumbs-up me-1"></i>Recommends
+                                    </span>
+                                    <small class="text-muted">Verified Purchase</small>
+                                </div>
+                            </div>
+
+                            <!-- No Reviews -->
+                            <div *ngIf="getReviews().length === 0" class="text-center py-4">
+                                <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No reviews yet</h5>
+                                <p class="text-muted">Be the first to share your thoughts about this product!</p>
+                                <button *ngIf="!isLoggedIn" class="btn btn-primary" (click)="navigateToLogin()">
+                                    Login to Write Review
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

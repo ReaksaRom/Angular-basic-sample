@@ -1,0 +1,22 @@
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card">
+                <div class="card-body py-5">
+                    <div class="text-success mb-4" style="font-size: 4rem;">🎉</div>
+                    <h2 class="card-title">Order Confirmed!</h2>
+                    <p class="card-text text-muted mb-4">
+                        Thank you for your purchase. Your order has been successfully placed.
+                    </p>
+                    <div *ngIf="orderId" class="mb-4">
+                        <strong>Order ID: #{{ orderId }}</strong>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a routerLink="/orders" class="btn btn-primary">View Orders</a>
+                        <a routerLink="/" class="btn btn-outline-secondary">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,459 @@
+<div class="container">
+    <div class="admin-products-page">
+        <!-- Header -->
+        <div class="page-header mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-5 fs-3 fw-bold text-dark">
+                        <i class="fas fa-boxes me-3 text-primary"></i>Product Management
+                    </h1>
+                    <p class="text-muted">Manage your product catalog and inventory</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <button class="btn btn-primary btn-lg" (click)="addProduct()">
+                        <i class="fas fa-plus me-2"></i>Add New Product
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="card filters-card mb-4">
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <!-- Search -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Search Products</label>
+                        <div class="search-box">
+                            <i class="fas fa-search position-absolute mt-2 ms-3 text-muted"></i>
+                            <input type="text" class="form-control ps-5" placeholder="Search by name or description..."
+                                [(ngModel)]="searchTerm" (input)="applyFilters()">
+                        </div>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Category</label>
+                        <select class="form-select" [(ngModel)]="selectedCategory" (change)="applyFilters()">
+                            <option value="all">All Categories</option>
+                            <option *ngFor="let category of categories" [value]="category.id">
+                                {{ category.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Stock Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Stock Status</label>
+                        <select class="form-select" [(ngModel)]="stockFilter" (change)="applyFilters()">
+                            <option value="all">All Stock</option>
+                            <option value="in-stock">In Stock</option>
+                            <option value="out-of-stock">Out of Stock</option>
+                            <option value="low-stock">Low Stock</option>
+                        </select>
+                    </div>
+
+                    <!-- Status Filter -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Status</label>
+                        <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                            <option value="all">All Status</option>
+                            <option value="featured">Featured</option>
+                            <option value="discounted">On Sale</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Sort By</label>
+                        <select class="form-select" [(ngModel)]="selectedSort" (change)="applyFilters()">
+                            <option *ngFor="let option of sortOptions" [value]="option.value">
+                                {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Reset -->
+                    <div class="col-md-1">
+                        <button class="btn btn-outline-secondary w-100"
+                            (click)="searchTerm = ''; selectedCategory = 'all'; stockFilter = 'all'; statusFilter = 'all'; selectedSort = 'date-new'; applyFilters()">
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Summary -->
+        <div class="row mb-4">
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body text-center py-3">
+                        <h3 class="mb-1">{{ products.length }}</h3>
+                        <small>Total Products</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body text-center py-3">
+                        <h3 class="mb-1">{{ inStock}}</h3>
+                        <small>In Stock</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-warning text-white">
+                    <div class="card-body text-center py-3">
+                        <h3 class="mb-1">{{ lowStock }}</h3>
+                        <small>Low Stock</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-danger text-white">
+                    <div class="card-body text-center py-3">
+                        <h3 class="mb-1">{{ outOfStock }}</h3>
+                        <small>Out of Stock</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body text-center py-3">
+                        <h3 class="mb-1">{{ featured }}</h3>
+                        <small>Featured</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-secondary text-white">
+                    <div class="card-body text-center py-3">
+                        <h3 class="mb-1">{{ onSale }}</h3>
+                        <small>On Sale</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="card main-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>Products List
+                    <span class="badge bg-primary ms-2">{{ totalProducts }}</span>
+                </h5>
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">
+                        Showing {{ showingFrom }}-{{ showingTo }} of {{ totalProducts }} products
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-body p-0">
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Loading products...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="!isLoading && filteredProducts.length === 0" class="text-center py-5">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <h5>No products found</h5>
+                    <p class="text-muted mb-4">Try adjusting your search or filters</p>
+                    <button class="btn btn-primary" (click)="addProduct()">
+                        <i class="fas fa-plus me-2"></i>Add Your First Product
+                    </button>
+                </div>
+
+                <!-- Products Table -->
+                <div *ngIf="!isLoading && filteredProducts.length > 0" class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="80">Image</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Discount</th>
+                                <th width="120">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let product of paginatedProducts" class="product-row">
+                                <td>
+                                    <img [src]="product.imageUrl" [alt]="product.name" class="product-thumb rounded"
+                                        (error)="product.imageUrl = 'https://via.placeholder.com/80?text=No+Image'">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <h6 class="mb-1">{{ product.name }}</h6>
+                                            <small class="text-muted text-truncate d-block" style="max-width: 200px;">
+                                                {{ product.description | slice:0:60 }}...
+                                            </small>
+                                        </div>
+                                        <span *ngIf="product.featured" class="badge bg-warning ms-2">Featured</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ getCategoryName(product.categoryId) }}</span>
+                                </td>
+                                <td>
+                                    <div class="price-info">
+                                        <span class="fw-bold text-success">${{ getDiscountedPrice(product) |
+                                            number:'1.2-2'
+                                            }}</span>
+                                        <span *ngIf="product.discount && product.discount > 0"
+                                            class="text-muted text-decoration-line-through d-block small">
+                                            ${{ product.price | number:'1.2-2' }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold" [ngClass]="'text-' + getStockStatus(product.stock).class">
+                                        {{ product.stock }}
+                                    </span>
+                                    <div class="small text-muted">{{ getStockStatus(product.stock).text }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge" [ngClass]="'bg-' + getStockStatus(product.stock).class">
+                                        {{ getStockStatus(product.stock).text }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span *ngIf="product.discount && product.discount > 0" class="badge bg-danger">
+                                        -{{ product.discount }}%
+                                    </span>
+                                    <span *ngIf="!product.discount || product.discount === 0"
+                                        class="text-muted small">-</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" (click)="editProduct(product)"
+                                            title="Edit Product">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger" (click)="confirmDelete(product)"
+                                            title="Delete Product">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div *ngIf="!isLoading && filteredProducts.length > 0" class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                Showing {{ showingFrom }}-{{ showingTo }} of {{ totalProducts }} products
+                            </small>
+                        </div>
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item" [class.disabled]="currentPage === 1">
+                                    <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
+                                </li>
+
+                                <li *ngFor="let page of getPageNumbers()" class="page-item"
+                                    [class.active]="page === currentPage">
+                                    <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+                                </li>
+
+                                <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                    <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Product Modal -->
+        <div class="modal fade show d-block" [class.show]="isAdding || isEditing" style="background: rgba(0,0,0,0.5)"
+            *ngIf="isAdding || isEditing">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas me-2" [class.fa-plus]="isAdding" [class.fa-edit]="isEditing"></i>
+                            {{ isAdding ? 'Add New Product' : 'Edit Product' }}
+                        </h5>
+                        <button type="button" class="btn-close" (click)="cancelEdit()"></button>
+                    </div>
+
+                    <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+                        <div class="modal-body">
+                            <div class="row">
+                                <!-- Product Image -->
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">Product Image</label>
+                                    <div class="image-upload-area text-center p-4 border rounded">
+                                        <img [src]="imagePreview || 'https://via.placeholder.com/200?text=Product+Image'"
+                                            [alt]="productForm.get('name')?.value" class="img-fluid rounded mb-3"
+                                            style="max-height: 200px; object-fit: cover;">
+                                        <div class="mb-3">
+                                            <input type="url" class="form-control" formControlName="imageUrl"
+                                                placeholder="Enter image URL" (input)="updateImagePreview()">
+                                        </div>
+                                        <small class="text-muted">Enter a valid image URL</small>
+                                    </div>
+                                    <div *ngIf="f['imageUrl'].touched && f['imageUrl'].invalid"
+                                        class="text-danger small">
+                                        Product image is required
+                                    </div>
+                                </div>
+
+                                <!-- Product Details -->
+                                <div class="col-md-8">
+                                    <div class="row g-3">
+                                        <!-- Product Name -->
+                                        <div class="col-12">
+                                            <label class="form-label fw-semibold">Product Name</label>
+                                            <input type="text" class="form-control" formControlName="name"
+                                                placeholder="Enter product name">
+                                            <div *ngIf="f['name'].touched && f['name'].invalid"
+                                                class="text-danger small">
+                                                <span *ngIf="f['name'].errors?.['required']">Product name is
+                                                    required</span>
+                                                <span *ngIf="f['name'].errors?.['minlength']">Name must be at least 3
+                                                    characters</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Category and Price -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Category</label>
+                                            <select class="form-select" formControlName="categoryId">
+                                                <option value="">Select Category</option>
+                                                <option *ngFor="let category of categories" [value]="category.id">
+                                                    {{ category.name }}
+                                                </option>
+                                            </select>
+                                            <div *ngIf="f['categoryId'].touched && f['categoryId'].invalid"
+                                                class="text-danger small">
+                                                Category is required
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Price ($)</label>
+                                            <input type="number" class="form-control" formControlName="price"
+                                                placeholder="0.00" step="0.01">
+                                            <div *ngIf="f['price'].touched && f['price'].invalid"
+                                                class="text-danger small">
+                                                <span *ngIf="f['price'].errors?.['required']">Price is required</span>
+                                                <span *ngIf="f['price'].errors?.['min']">Price must be greater than
+                                                    0</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Stock and Discount -->
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Stock Quantity</label>
+                                            <input type="number" class="form-control" formControlName="stock"
+                                                placeholder="0">
+                                            <div *ngIf="f['stock'].touched && f['stock'].invalid"
+                                                class="text-danger small">
+                                                <span *ngIf="f['stock'].errors?.['required']">Stock quantity is
+                                                    required</span>
+                                                <span *ngIf="f['stock'].errors?.['min']">Stock cannot be negative</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold">Discount (%)</label>
+                                            <input type="number" class="form-control" formControlName="discount"
+                                                placeholder="0" min="0" max="100">
+                                            <div *ngIf="f['discount'].touched && f['discount'].invalid"
+                                                class="text-danger small">
+                                                Discount must be between 0 and 100
+                                            </div>
+                                        </div>
+
+                                        <!-- Description -->
+                                        <div class="col-12">
+                                            <label class="form-label fw-semibold">Description</label>
+                                            <textarea class="form-control" formControlName="description" rows="4"
+                                                placeholder="Enter product description..."></textarea>
+                                            <div *ngIf="f['description'].touched && f['description'].invalid"
+                                                class="text-danger small">
+                                                <span *ngIf="f['description'].errors?.['required']">Description is
+                                                    required</span>
+                                                <span *ngIf="f['description'].errors?.['minlength']">Description must be
+                                                    at
+                                                    least 10 characters</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Featured Toggle -->
+                                        <div class="col-12">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox"
+                                                    formControlName="featured">
+                                                <label class="form-check-label fw-semibold">Featured Product</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid || isLoading">
+                                <span *ngIf="!isLoading">
+                                    {{ isAdding ? 'Add Product' : 'Update Product' }}
+                                </span>
+                                <span *ngIf="isLoading">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>
+                                    {{ isAdding ? 'Adding...' : 'Updating...' }}
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="modal fade show d-block" [class.show]="showDeleteModal" style="background: rgba(0,0,0,0.5)"
+            *ngIf="showDeleteModal">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                        </h5>
+                        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete <strong>"{{ productToDelete?.name }}"</strong>?</p>
+                        <p class="text-muted small">This action cannot be undone and will permanently remove the product
+                            from your catalog.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" (click)="closeDeleteModal()">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn btn-danger" (click)="deleteProduct()">
+                            <i class="fas fa-trash me-2"></i>Delete Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

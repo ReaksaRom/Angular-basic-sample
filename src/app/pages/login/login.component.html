@@ -1,0 +1,162 @@
+<div class="login-page min-vh-100 bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-5">
+                <!-- Login Card -->
+                <div class="card login-card shadow-lg border-0">
+                    <div class="card-body p-4 p-sm-5">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <a routerLink="/" class="text-decoration-none">
+                                <h2 class="text-primary fw-bold mb-2">🛍️ TechStore</h2>
+                            </a>
+                            <h4 class="card-title fw-bold">Welcome Back</h4>
+                            <p class="text-muted">Sign in to your account to continue</p>
+                        </div>
+
+                        <!-- Demo Accounts -->
+                        <div class="demo-accounts mb-4">
+                            <p class="text-center text-muted small mb-2">Quick login with demo accounts:</p>
+                            <div class="d-flex gap-2 justify-content-center">
+                                <button class="btn btn-outline-primary btn-sm" (click)="loginWithDemo('customer')">
+                                    <i class="fas fa-user me-1"></i> Customer
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm" (click)="loginWithDemo('admin')">
+                                    <i class="fas fa-crown me-1"></i> Admin
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="divider my-4">
+                            <span class="text-muted">OR</span>
+                        </div>
+
+                        <!-- Login Form -->
+                        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control form-control-lg" id="email"
+                                    formControlName="email"
+                                    [class.is-invalid]="f['email'].touched && f['email'].invalid"
+                                    placeholder="Enter your email">
+                                <div class="invalid-feedback" *ngIf="f['email'].touched && f['email'].invalid">
+                                    <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+                                    <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-2 text-primary"></i>Password
+                                </label>
+                                <div class="password-input-group">
+                                    <input [type]="showPassword ? 'text' : 'password'"
+                                        class="form-control form-control-lg" id="password" formControlName="password"
+                                        [class.is-invalid]="f['password'].touched && f['password'].invalid"
+                                        placeholder="Enter your password">
+                                    <button type="button" class="btn btn-outline-secondary password-toggle"
+                                        (click)="togglePasswordVisibility()">
+                                        <i class="fas" [class.fa-eye]="!showPassword"
+                                            [class.fa-eye-slash]="showPassword"></i>
+                                    </button>
+                                    <div class="invalid-feedback"
+                                        *ngIf="f['password'].touched && f['password'].invalid">
+                                        <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+                                        <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 6
+                                            characters</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Remember Me & Forgot Password -->
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe"
+                                        formControlName="rememberMe">
+                                    <label class="form-check-label text-muted" for="rememberMe">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a class="text-decoration-none text-primary small">
+                                    Forgot password?
+                                </a>
+                            </div>
+
+                            <!-- Error Message -->
+                            <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ errorMessage }}
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary btn-lg w-100 py-3 fw-semibold"
+                                [disabled]="isLoading">
+                                <span *ngIf="!isLoading">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                </span>
+                                <span *ngIf="isLoading">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Signing In...
+                                </span>
+                            </button>
+                        </form>
+
+                        <!-- Social Login -->
+                        <div class="social-login mt-4">
+                            <div class="divider">
+                                <span class="text-muted">Or continue with</span>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <button type="button" class="btn btn-outline-dark btn-lg">
+                                    <i class="fab fa-google me-2"></i>Continue with Google
+                                </button>
+                                <button type="button" class="btn btn-outline-primary btn-lg">
+                                    <i class="fab fa-facebook me-2"></i>Continue with Facebook
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Register Link -->
+                        <div class="text-center mt-4">
+                            <p class="text-muted">
+                                Don't have an account?
+                                <a routerLink="/register" class="text-primary fw-semibold text-decoration-none">
+                                    Sign up here
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features -->
+                <div class="row mt-4 text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-shipping-fast text-primary mb-2"></i>
+                            <h6 class="fw-semibold">Free Shipping</h6>
+                            <small class="text-muted">On orders over $50</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt text-success mb-2"></i>
+                            <h6 class="fw-semibold">Secure Payment</h6>
+                            <small class="text-muted">100% protected</small>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="feature-item">
+                            <i class="fas fa-headset text-info mb-2"></i>
+                            <h6 class="fw-semibold">24/7 Support</h6>
+                            <small class="text-muted">We're here to help</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

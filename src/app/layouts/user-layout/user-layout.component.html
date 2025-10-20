@@ -1,0 +1,71 @@
+<div class="user-layout d-flex flex-column min-vh-100">
+    <!-- Header -->
+    <app-header></app-header>
+
+    <!-- Main Content -->
+    <main class="main-content flex-grow-1">
+        <!-- Notification Container -->
+        <div class="notification-container">
+            <!-- Top Right Notifications -->
+            <div class="notification-position top-right">
+                <div *ngFor="let toast of toasts" [class]="getToastClass(toast)"
+                    [style.--progress]="toast.progress + '%'" role="alert" aria-live="polite" aria-atomic="true">
+
+                    <!-- Toast Header -->
+                    <div class="toast-header">
+                        <div class="toast-icon">
+                            <i [class]="getToastIcon(toast.type)"></i>
+                        </div>
+                        <div class="toast-content">
+                            <strong class="toast-title">{{ toast.title }}</strong>
+                            <p class="toast-message">{{ toast.message }}</p>
+                        </div>
+                        <button type="button" class="toast-close" (click)="removeToast(toast.id)"
+                            aria-label="Close notification">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Progress Bar (for auto-dismiss toasts) -->
+                    <div *ngIf="toast.autoDismiss" class="toast-progress">
+                        <div class="toast-progress-bar" [style.width.%]="toast.progress"></div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div *ngIf="toast.actions?.length" class="toast-actions">
+                        <button *ngFor="let action of toast.actions" class="toast-action-btn"
+                            [class]="'toast-action-' + action.type" (click)="action.handler(); removeToast(toast.id)">
+                            {{ action.label }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Center Notifications -->
+            <div class="notification-position top-center">
+                <ng-container *ngFor="let toast of toasts">
+                    <div *ngIf="toast.position === 'top-center'" [class]="getToastClass(toast)" role="alert">
+                        <!-- Toast Content -->
+                    </div>
+                </ng-container>
+            </div>
+
+            <!-- Bottom Right Notifications -->
+            <div class="notification-position bottom-right">
+                <ng-container *ngFor="let toast of toasts">
+                    <div *ngIf="toast.position === 'bottom-right'" [class]="getToastClass(toast)" role="alert">
+                        <!-- Toast Content -->
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Router Outlet for Page Content -->
+        <div class="content-wrapper">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <app-footer></app-footer>
+</div>

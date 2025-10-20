@@ -1,0 +1,104 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#" (click)="navigateToHome(); $event.preventDefault()">
+            🛍️ TechStore
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <!-- Search Bar -->
+            <form class="d-flex me-3 my-2 my-lg-0" (submit)="searchProducts(); $event.preventDefault()">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchQuery"
+                        name="searchQuery">
+                    <button class="btn btn-info btn-outline-light" type="submit"><i
+                            class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </form>
+
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="#" (click)="navigateToHome(); $event.preventDefault()">
+                    Home
+                </a>
+
+                <a *ngIf="isLoggedIn" class="nav-link" href="#" (click)="navigateToOrders(); $event.preventDefault()">
+                    Orders
+                </a>
+
+                <a *ngIf="isLoggedIn" class="nav-link" href="#" (click)="navigateToWishlist(); $event.preventDefault()">
+                    <i class="fas fa-heart me-1"></i>Wishlist
+                    <span *ngIf="wishlistCount > 0" class="badge bg-danger ms-1">{{ wishlistCount }}</span>
+                </a>
+
+                <div class="nav-item dropdown" *ngIf="isLoggedIn; else loginSection">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <img [src]="user?.avatar" [alt]="user?.name" class="rounded-circle me-1"
+                            style="width: 24px; height: 24px;">
+                        {{ user?.name }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"
+                                (click)="navigateToProfile(); $event.preventDefault()">Profile</a></li>
+                        <li><a class="dropdown-item" href="#" (click)="navigateToOrders(); $event.preventDefault()">My
+                                Orders</a></li>
+                        <li><a class="dropdown-item" href="#"
+                                (click)="navigateToWishlist(); $event.preventDefault()">Wishlist</a></li>
+                        <li *ngIf="isAdmin">
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li *ngIf="isAdmin">
+                            <a class="dropdown-item" href="#" (click)="navigateToAdmin(); $event.preventDefault()">Admin
+                                Panel</a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="#"
+                                (click)="logout(); $event.preventDefault()">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <ng-template #loginSection>
+                    <a class="nav-link" href="#" (click)="navigateToLogin() ; $event.preventDefault()">Login</a>
+                </ng-template>
+
+                <!-- Cart -->
+                <div class="nav-item dropdown">
+                    <a class="nav-link position-relative" href="#" id="cartDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        🛒
+                        <span *ngIf="dataService.getCartItemCount() > 0"
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ dataService.getCartItemCount() }}
+                        </span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cartDropdown">
+                        <div class="px-3 py-2" style="min-width: 250px;">
+                            <div *ngIf="dataService.getCartItemCount() === 0" class="text-center">
+                                Your cart is empty
+                            </div>
+                            <div *ngFor="let item of dataService.getCart()"
+                                class="d-flex justify-content-between align-items-center mb-2">
+                                <small>{{ item.product.name }}</small>
+                                <small class="text-muted">x{{ item.quantity }}</small>
+                            </div>
+                            <div *ngIf="dataService.getCartItemCount() > 0" class="mt-2 pt-2 border-top">
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total:</span>
+                                    <span>${{ dataService.getCartTotal() | number:'1.2-2' }}</span>
+                                </div>
+                                <button class="btn btn-primary btn-sm w-100 mt-2" (click)="navigateToCart()">
+                                    View Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

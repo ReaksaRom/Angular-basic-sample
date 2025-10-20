@@ -1,0 +1,595 @@
+<!-- admin-inventory.component.html -->
+<div class="admin-inventory">
+    <!-- Header -->
+    <div class="inventory-header">
+        <div class="header-content">
+            <h1 class="page-title fs-3">
+                <i class="fas fa-boxes me-3"></i>
+                Inventory Management
+            </h1>
+            <p class="page-subtitle">Manage stock levels, track movements, and monitor suppliers</p>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn btn-primary me-2" (click)="exportInventoryReport()">
+                <i class="fas fa-file-export me-2"></i>
+                Export Report
+            </button>
+            <button class="btn btn-success" (click)="openSupplierModal()">
+                <i class="fas fa-plus me-2"></i>
+                Add Supplier
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading inventory...</span>
+        </div>
+        <p class="mt-3 text-muted">Loading inventory data...</p>
+    </div>
+
+    <!-- Inventory Content -->
+    <div *ngIf="!isLoading" class="inventory-content">
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card bg-primary text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ getInventoryStats().totalItems }}</h3>
+                        <p>Total Products</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card bg-success text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ getInventoryStats().inStock }}</h3>
+                        <p>In Stock</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card bg-warning text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ getInventoryStats().lowStock }}</h3>
+                        <p>Low Stock</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="stat-card bg-danger text-white">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ getInventoryStats().outOfStock }}</h3>
+                        <p>Out of Stock</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <nav class="inventory-tabs">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <button class="nav-link" [class.active]="activeTab === 'overview'"
+                        (click)="onTabChange('overview')">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Overview
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" [class.active]="activeTab === 'products'"
+                        (click)="onTabChange('products')">
+                        <i class="fas fa-box me-2"></i>
+                        Products
+                        <span class="badge bg-secondary ms-2">{{ inventoryItems.length }}</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" [class.active]="activeTab === 'movements'"
+                        (click)="onTabChange('movements')">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        Stock Movements
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" [class.active]="activeTab === 'suppliers'"
+                        (click)="onTabChange('suppliers')">
+                        <i class="fas fa-truck me-2"></i>
+                        Suppliers
+                        <span class="badge bg-secondary ms-2">{{ suppliers.length }}</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-4">
+
+            <!-- Overview Tab -->
+            <div *ngIf="activeTab === 'overview'" class="tab-pane fade show active">
+                <div class="row">
+                    <!-- Stock Level Chart -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-pie me-2"></i>Stock Levels Distribution</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <!-- <canvas baseChart
+                          [data]="stockLevelChartData"
+                          type="doughnut">
+                  </canvas> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Movement Chart -->
+                    <div class="col-lg-6 mb-4">
+                        <div class="chart-card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-chart-line me-2"></i>Stock Movements</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <!-- <canvas baseChart
+                          [data]="movementChartData"
+                          type="line">
+                  </canvas> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Alerts -->
+                <div class="alert-card bg-warning">
+                    <div class="alert-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <h5>Low Stock Alerts</h5>
+                        <p>You have {{ getInventoryStats().lowStock + getInventoryStats().outOfStock }} products that
+                            need attention.</p>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-outline-dark"
+                            (click)="onTabChange('products'); statusFilter = 'low_stock'">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Tab -->
+            <div *ngIf="activeTab === 'products'" class="tab-pane fade show active">
+                <!-- Filters and Search -->
+                <div class="filters-card mb-4">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Search Products</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" placeholder="Search by name, SKU..."
+                                    [(ngModel)]="searchTerm" (input)="onSearch()">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" [(ngModel)]="statusFilter" (change)="onFilterChange()">
+                                <option *ngFor="let status of statuses" [value]="status.value">
+                                    {{ status.label }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" [(ngModel)]="categoryFilter" (change)="onFilterChange()">
+                                <option *ngFor="let category of categories" [value]="category">
+                                    {{ category === 'all' ? 'All Categories' : category }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Supplier</label>
+                            <select class="form-select" [(ngModel)]="supplierFilter" (change)="onFilterChange()">
+                                <option value="all">All Suppliers</option>
+                                <option *ngFor="let supplier of suppliers" [value]="supplier.name">
+                                    {{ supplier.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-grid">
+                                <button class="btn btn-outline-secondary"
+                                    (click)="searchTerm = ''; statusFilter = 'all'; categoryFilter = 'all'; supplierFilter = 'all'; onFilterChange()">
+                                    <i class="fas fa-refresh me-2"></i>
+                                    Reset Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inventory Table -->
+                <div class="inventory-table-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Product Inventory</h5>
+                        <span class="text-muted">Showing {{ paginatedItems.length }} of {{ filteredItems.length }}
+                            products</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>SKU</th>
+                                        <th>Current Stock</th>
+                                        <th>Status</th>
+                                        <th>Cost Price</th>
+                                        <th>Location</th>
+                                        <th>Supplier</th>
+                                        <th>Last Restocked</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let item of paginatedItems"
+                                        [class.table-warning]="item.status === 'low_stock'"
+                                        [class.table-danger]="item.status === 'out_of_stock'">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img *ngIf="item.imageUrl" [src]="item.imageUrl"
+                                                    [alt]="item.productName" class="product-thumb me-3">
+                                                <div>
+                                                    <strong class="d-block">{{ item.productName }}</strong>
+                                                    <small class="text-muted">{{ item.category }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <code>{{ item.sku }}</code>
+                                        </td>
+                                        <td>
+                                            <strong>{{ item.currentStock }}</strong>
+                                            <small class="text-muted d-block">
+                                                Threshold: {{ item.lowStockThreshold }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <span [class]="getStatusClass(item.status)">
+                                                {{ getStatusText(item.status) }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong>${{ item.costPrice }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">{{ item.location }}</span>
+                                        </td>
+                                        <td>{{ item.supplier }}</td>
+                                        <td>
+                                            {{ item.lastRestocked }}
+                                            <small *ngIf="item.nextRestockDate" class="text-muted d-block">
+                                                Next: {{ item.nextRestockDate }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                    (click)="openStockModal(item)" title="Adjust Stock">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-info"
+                                                    (click)="quickUpdate(item, 'lowStockThreshold', item.lowStockThreshold + 1)"
+                                                    title="Settings">
+                                                    <i class="fas fa-cog"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div *ngIf="filteredItems.length === 0" class="text-center py-5">
+                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                            <h5>No products found</h5>
+                            <p class="text-muted">Try adjusting your search or filters</p>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div *ngIf="filteredItems.length > 0" class="card-footer">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted">
+                                    Page {{ currentPage }} of {{ totalPages }}
+                                    ({{ filteredItems.length }} total items)
+                                </span>
+                            </div>
+                            <nav>
+                                <ul class="pagination mb-0">
+                                    <li class="page-item" [class.disabled]="currentPage === 1">
+                                        <button class="page-link" (click)="goToPage(currentPage - 1)">
+                                            Previous
+                                        </button>
+                                    </li>
+                                    <li *ngFor="let page of [].constructor(totalPages); let i = index" class="page-item"
+                                        [class.active]="currentPage === i + 1">
+                                        <button class="page-link" (click)="goToPage(i + 1)">
+                                            {{ i + 1 }}
+                                        </button>
+                                    </li>
+                                    <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                        <button class="page-link" (click)="goToPage(currentPage + 1)">
+                                            Next
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Movements Tab -->
+            <div *ngIf="activeTab === 'movements'" class="tab-pane fade show active">
+                <div class="movements-card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-exchange-alt me-2"></i>Recent Stock Movements</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Product</th>
+                                        <th>Type</th>
+                                        <th>Quantity</th>
+                                        <th>Stock Before</th>
+                                        <th>Stock After</th>
+                                        <th>Reason</th>
+                                        <th>Performed By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let movement of stockMovements">
+                                        <td>{{ movement.date }}</td>
+                                        <td>
+                                            <strong>{{ movement.productName }}</strong>
+                                        </td>
+                                        <td>
+                                            <span
+                                                [class]="movement.type === 'in' ? 'badge bg-success' : 'badge bg-danger'">
+                                                {{ movement.type === 'in' ? 'Stock In' : 'Stock Out' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ movement.quantity }}</strong>
+                                        </td>
+                                        <td>{{ movement.previousStock }}</td>
+                                        <td>
+                                            <strong>{{ movement.newStock }}</strong>
+                                        </td>
+                                        <td>{{ movement.reason }}</td>
+                                        <td>{{ movement.performedBy }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suppliers Tab -->
+            <div *ngIf="activeTab === 'suppliers'" class="tab-pane fade show active">
+                <div class="suppliers-grid">
+                    <div class="row">
+                        <div *ngFor="let supplier of suppliers" class="col-lg-6 mb-4">
+                            <div class="supplier-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">{{ supplier.name }}</h5>
+                                    <span
+                                        [class]="supplier.status === 'active' ? 'badge bg-success' : 'badge bg-secondary'">
+                                        {{ supplier.status }}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="supplier-info">
+                                        <div class="info-item">
+                                            <i class="fas fa-user me-2"></i>
+                                            <strong>Contact:</strong> {{ supplier.contactPerson }}
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-envelope me-2"></i>
+                                            <strong>Email:</strong> {{ supplier.email }}
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-phone me-2"></i>
+                                            <strong>Phone:</strong> {{ supplier.phone }}
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-map-marker-alt me-2"></i>
+                                            <strong>Address:</strong> {{ supplier.address }}
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-box me-2"></i>
+                                            <strong>Products Supplied:</strong> {{ supplier.productsSupplied }}
+                                        </div>
+                                        <div class="info-item">
+                                            <i class="fas fa-star me-2"></i>
+                                            <strong>Rating:</strong>
+                                            <span class="rating-stars">
+                                                <i *ngFor="let star of [1,2,3,4,5]"
+                                                    [class]="star <= supplier.rating ? 'fas fa-star text-warning' : 'far fa-star text-muted'">
+                                                </i>
+                                            </span>
+                                            ({{ supplier.rating }})
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="btn-group w-100">
+                                        <button class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-edit me-1"></i>
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-outline-info btn-sm">
+                                            <i class="fas fa-eye me-1"></i>
+                                            View Products
+                                        </button>
+                                        <button class="btn btn-outline-success btn-sm">
+                                            <i class="fas fa-file-invoice me-1"></i>
+                                            Orders
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Adjustment Modal -->
+    <div class="modal fade" [class.show]="showStockModal" [style.display]="showStockModal ? 'block' : 'none'">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>
+                        Adjust Stock - {{ selectedItem?.productName }}
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeStockModal()"></button>
+                </div>
+                <form [formGroup]="stockAdjustmentForm" (ngSubmit)="adjustStock()">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Adjustment Type</label>
+                                    <select class="form-select" formControlName="adjustmentType">
+                                        <option value="in">Stock In (Add)</option>
+                                        <option value="out">Stock Out (Remove)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity *</label>
+                                    <input type="number" class="form-control" formControlName="quantity" min="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Reason *</label>
+                            <select class="form-select" formControlName="reason">
+                                <option value="">Select a reason</option>
+                                <option *ngFor="let reason of adjustmentReasons" [value]="reason">
+                                    {{ reason }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" rows="3" formControlName="notes"
+                                placeholder="Additional information about this adjustment..."></textarea>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Current Stock:</strong> {{ selectedItem?.currentStock }}<br>
+                            <strong>After Adjustment:</strong>
+                            {{ selectedItem ? (selectedItem.currentStock +
+                            (stockAdjustmentForm.get('adjustmentType')?.value === 'in' ?
+                            stockAdjustmentForm.get('quantity')?.value :
+                            -stockAdjustmentForm.get('quantity')?.value)) : 0 }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="closeStockModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary"
+                            [disabled]="isSaving || stockAdjustmentForm.invalid">
+                            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                            {{ isSaving ? 'Updating...' : 'Update Stock' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Supplier Modal -->
+    <div class="modal fade" [class.show]="showSupplierModal" [style.display]="showSupplierModal ? 'block' : 'none'">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus me-2"></i>
+                        Add New Supplier
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeSupplierModal()"></button>
+                </div>
+                <form [formGroup]="addSupplierForm" (ngSubmit)="addSupplier()">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Supplier Name *</label>
+                            <input type="text" class="form-control" formControlName="name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Contact Person *</label>
+                            <input type="text" class="form-control" formControlName="contactPerson">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" formControlName="email">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone *</label>
+                            <input type="tel" class="form-control" formControlName="phone">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Address *</label>
+                            <textarea class="form-control" rows="3" formControlName="address"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" (click)="closeSupplierModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" [disabled]="isSaving || addSupplierForm.invalid">
+                            <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                            {{ isSaving ? 'Adding...' : 'Add Supplier' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div class="modal fade" [class.show]="showStockModal || showSupplierModal"
+        (click)="showStockModal ? closeStockModal() : closeSupplierModal()">
+    </div>
+</div>

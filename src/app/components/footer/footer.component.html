@@ -1,0 +1,177 @@
+<footer class="footer bg-dark text-light">
+    <!-- Main Footer Content -->
+    <div class="container mt-5">
+        <!-- Newsletter Section -->
+        <div class="newsletter-section py-5 border-bottom border-secondary">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h4 class="text-warning mb-2">📧 Stay Updated</h4>
+                    <p class="mb-0 text-light">Subscribe to our newsletter for the latest tech deals and updates!</p>
+                </div>
+                <div class="col-lg-6">
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-lg" placeholder="Enter your email address"
+                            #emailInput>
+                        <button class="btn btn-warning btn-lg px-4" type="button"
+                            (click)="subscribeNewsletter(emailInput.value); emailInput.value=''">
+                            Subscribe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Footer Links -->
+        <div class="main-footer py-5">
+            <div class="row g-4">
+                <!-- Company Info -->
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="footer-brand mb-3">
+                        <h3 class="text-warning fw-bold">🛍️ TechStore</h3>
+                    </div>
+                    <p class="text-light mb-3">{{ storeInfo.description }}</p>
+                    <div class="contact-info">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-map-marker-alt text-warning me-3"></i>
+                            <span class="text-light">{{ storeInfo.address }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-phone text-warning me-3"></i>
+                            <span class="text-light">{{ storeInfo.phone }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-envelope text-warning me-3"></i>
+                            <span class="text-light">{{ storeInfo.email }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-clock text-warning me-3"></i>
+                            <span class="text-light">{{ storeInfo.hours }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="text-warning mb-3">Categories</h5>
+                    <ul class="list-unstyled">
+                        <li *ngFor="let category of categories" class="mb-2">
+                            <a [routerLink]="['/']" [fragment]="'products'"
+                                class="text-light text-decoration-none footer-link">
+                                {{ category.name }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Customer Service -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="text-warning mb-3">Customer Service</h5>
+                    <ul class="list-unstyled">
+                        <li *ngFor="let link of customerService" class="mb-2">
+                            <a [routerLink]="link.path" class="text-light text-decoration-none footer-link">
+                                {{ link.name }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h5 class="text-warning mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li *ngFor="let link of quickLinks" class="mb-2">
+                            <a [routerLink]="link.path" class="text-light text-decoration-none footer-link">
+                                {{ link.name }}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Social & Payment -->
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <!-- Social Media -->
+                    <h5 class="text-warning mb-3">Follow Us</h5>
+                    <div class="social-links mb-4">
+                        <div class="d-flex flex-wrap gap-2">
+                            <a *ngFor="let social of socialLinks" [href]="social.url" target="_blank"
+                                class="social-icon d-flex align-items-center justify-content-center"
+                                [style.background]="social.color" [title]="social.name">
+                                <i [class]="social.icon"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <h5 class="text-warning mb-3">We Accept</h5>
+                    <div class="payment-methods">
+                        <div class="d-flex flex-wrap gap-2">
+                            <div *ngFor="let method of paymentMethods"
+                                class="payment-icon d-flex align-items-center justify-content-center"
+                                [title]="method.name">
+                                <i [class]="method.icon" [style.color]="method.color"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="trust-badges py-4 border-top border-secondary">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-3">
+                        <div class="trust-badge">
+                            <i class="fas fa-shield-alt text-success me-2"></i>
+                            <span>Secure Payment</span>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-truck text-info me-2"></i>
+                            <span>Free Shipping</span>
+                        </div>
+                        <div class="trust-badge">
+                            <i class="fas fa-undo text-warning me-2"></i>
+                            <span>30-Day Returns</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <div class="app-download">
+                        <h6 class="text-warning mb-2">Download Our App</h6>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="#" class="btn btn-outline-light btn-sm">
+                                <i class="fab fa-google-play me-1"></i> Google Play
+                            </a>
+                            <a href="#" class="btn btn-outline-light btn-sm">
+                                <i class="fab fa-apple me-1"></i> App Store
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <button class="btn btn-outline-warning btn-sm" (click)="scrollToTop()">
+                        <i class="fas fa-arrow-up me-1"></i> Back to Top
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="copyright-section py-3 border-top border-secondary">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                    <p class="mb-0 text-light">
+                        &copy; {{ currentYear }} {{ storeInfo.name }}. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <div class="footer-links">
+                        <a [routerLink]="'/privacy'" class="text-light text-decoration-none me-3">Privacy Policy</a>
+                        <a [routerLink]="'/terms'" class="text-light text-decoration-none me-3">Terms of Service</a>
+                        <a [routerLink]="'/sitemap'" class="text-light text-decoration-none">Sitemap</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>

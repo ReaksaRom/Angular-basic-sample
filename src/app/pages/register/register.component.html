@@ -1,0 +1,200 @@
+<div class="register-page min-vh-100 bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-5">
+                <!-- Register Card -->
+                <div class="card register-card shadow-lg border-0">
+                    <div class="card-body p-4 p-sm-5">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <a routerLink="/" class="text-decoration-none">
+                                <h2 class="text-primary fw-bold mb-2">🛍️ TechStore</h2>
+                            </a>
+                            <h4 class="card-title fw-bold">Create Account</h4>
+                            <p class="text-muted">Join thousands of happy customers</p>
+                        </div>
+
+                        <!-- Register Form -->
+                        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+                            <!-- Full Name -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-primary"></i>Full Name
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="name" formControlName="name"
+                                    [class.is-invalid]="f['name'].touched && f['name'].invalid"
+                                    placeholder="Enter your full name">
+                                <div class="invalid-feedback" *ngIf="f['name'].touched && f['name'].invalid">
+                                    <span *ngIf="f['name'].errors?.['required']">Full name is required</span>
+                                    <span *ngIf="f['name'].errors?.['minlength']">Name must be at least 2
+                                        characters</span>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control form-control-lg" id="email"
+                                    formControlName="email"
+                                    [class.is-invalid]="f['email'].touched && f['email'].invalid"
+                                    placeholder="Enter your email">
+                                <div class="invalid-feedback" *ngIf="f['email'].touched && f['email'].invalid">
+                                    <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+                                    <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-2 text-primary"></i>Password
+                                </label>
+                                <div class="password-input-group">
+                                    <input [type]="showPassword ? 'text' : 'password'"
+                                        class="form-control form-control-lg" id="password" formControlName="password"
+                                        [class.is-invalid]="f['password'].touched && f['password'].invalid"
+                                        placeholder="Create a password">
+                                    <button *ngIf="!(f['password'].touched && f['password'].invalid)" type="button"
+                                        class="btn btn-outline-secondary password-toggle"
+                                        (click)="togglePasswordVisibility('password')">
+                                        <i class="fas" [class.fa-eye]="!showPassword"
+                                            [class.fa-eye-slash]="showPassword"></i>
+                                    </button>
+                                    <div class="invalid-feedback"
+                                        *ngIf="f['password'].touched && f['password'].invalid">
+                                        <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+                                        <span *ngIf="f['password'].errors?.['minlength']">Password must be at least 6
+                                            characters</span>
+                                    </div>
+                                </div>
+
+                                <!-- Password Strength Meter -->
+                                <div *ngIf="f['password'].value" class="mt-2">
+                                    <div class="password-strength-meter">
+                                        <div class="strength-bar">
+                                            <div class="strength-progress" [style.width]="getPasswordStrength().width"
+                                                [style.background]="getPasswordStrength().color"></div>
+                                        </div>
+                                        <small class="text-muted" [style.color]="getPasswordStrength().color">
+                                            Password strength: {{ getPasswordStrength().strength }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-2 text-primary"></i>Confirm Password
+                                </label>
+                                <div class="password-input-group">
+                                    <input [type]="showConfirmPassword ? 'text' : 'password'"
+                                        class="form-control form-control-lg" id="confirmPassword"
+                                        formControlName="confirmPassword"
+                                        [class.is-invalid]="f['confirmPassword'].touched && f['confirmPassword'].invalid"
+                                        placeholder="Confirm your password">
+                                    <button *ngIf="!(f['confirmPassword'].touched && f['confirmPassword'].invalid)"
+                                        type="button" class="btn btn-outline-secondary password-toggle"
+                                        (click)="togglePasswordVisibility('confirmPassword')">
+                                        <i class="fas" [class.fa-eye]="!showConfirmPassword"
+                                            [class.fa-eye-slash]="showConfirmPassword"></i>
+                                    </button>
+
+
+                                    <div class="invalid-feedback"
+                                        *ngIf="f['confirmPassword'].touched && f['confirmPassword'].invalid">
+                                        <span *ngIf="f['confirmPassword'].errors?.['required']">Please confirm your
+                                            password</span>
+                                        <span *ngIf="f['confirmPassword'].errors?.['passwordMismatch']">Passwords do not
+                                            match</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Terms Agreement -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="agreeToTerms"
+                                        formControlName="agreeToTerms"
+                                        [class.is-invalid]="f['agreeToTerms'].touched && f['agreeToTerms'].invalid">
+                                    <label class="form-check-label text-muted" for="agreeToTerms">
+                                        I agree to the
+                                        <a href="#" class="text-primary text-decoration-none">Terms of Service</a>
+                                        and
+                                        <a href="#" class="text-primary text-decoration-none">Privacy Policy</a>
+                                    </label>
+                                    <div class="invalid-feedback"
+                                        *ngIf="f['agreeToTerms'].touched && f['agreeToTerms'].invalid">
+                                        You must agree to the terms and conditions
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Error Message -->
+                            <div *ngIf="errorMessage" class="alert alert-danger d-flex align-items-center" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ errorMessage }}
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-success btn-lg w-100 py-3 fw-semibold"
+                                [disabled]="isLoading">
+                                <span *ngIf="!isLoading">
+                                    <i class="fas fa-user-plus me-2"></i>Create Account
+                                </span>
+                                <span *ngIf="isLoading">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Creating Account...
+                                </span>
+                            </button>
+                        </form>
+
+                        <!-- Social Register -->
+                        <div class="social-register mt-4">
+                            <div class="divider">
+                                <span class="text-muted">Or sign up with</span>
+                            </div>
+                            <div class="d-grid gap-2 mt-3">
+                                <button type="button" class="btn btn-outline-dark btn-lg">
+                                    <i class="fab fa-google me-2"></i>Continue with Google
+                                </button>
+                                <button type="button" class="btn btn-outline-primary btn-lg">
+                                    <i class="fab fa-facebook me-2"></i>Continue with Facebook
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Login Link -->
+                        <div class="text-center mt-4">
+                            <p class="text-muted">
+                                Already have an account?
+                                <a routerLink="/login" class="text-primary fw-semibold text-decoration-none">
+                                    Sign in here
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benefits -->
+                <div class="row mt-4 text-center">
+                    <div class="col-md-6 mb-3">
+                        <div class="benefit-item">
+                            <i class="fas fa-gift text-warning mb-2"></i>
+                            <h6 class="fw-semibold">Exclusive Deals</h6>
+                            <small class="text-muted">Members-only discounts</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="benefit-item">
+                            <i class="fas fa-history text-info mb-2"></i>
+                            <h6 class="fw-semibold">Order History</h6>
+                            <small class="text-muted">Track your purchases</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

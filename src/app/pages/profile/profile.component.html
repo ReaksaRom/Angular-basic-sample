@@ -1,0 +1,389 @@
+<div class="profile-page">
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="display-5 fw-bold text-dark">My Profile</h1>
+                        <p class="text-muted">Manage your account settings and view your orders</p>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-semibold text-primary">Member since {{ userStats.memberSince }}</div>
+                        <small class="text-muted">Loyal Customer</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 mb-4">
+                <div class="card profile-sidebar shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <!-- User Avatar -->
+                        <div class="avatar-section mb-4">
+                            <img [src]="user?.avatar" [alt]="user?.name" class="avatar-img rounded-circle mb-3">
+                            <h5 class="fw-bold">{{ user?.name }}</h5>
+                            <p class="text-muted mb-2">{{ user?.email }}</p>
+                            <span class="badge bg-primary">{{ user?.role | titlecase }}</span>
+                        </div>
+
+                        <!-- Navigation -->
+                        <div class="nav flex-column nav-pills">
+                            <button class="nav-link text-start" [class.active]="activeTab === 'profile'"
+                                (click)="switchTab('profile')">
+                                <i class="fas fa-user me-2"></i>Profile Information
+                            </button>
+                            <button class="nav-link text-start" [class.active]="activeTab === 'orders'"
+                                (click)="switchTab('orders')">
+                                <i class="fas fa-shopping-bag me-2"></i>Recent Orders
+                            </button>
+                            <button class="nav-link text-start" [class.active]="activeTab === 'security'"
+                                (click)="switchTab('security')">
+                                <i class="fas fa-shield-alt me-2"></i>Security
+                            </button>
+                            <button class="nav-link text-start" [class.active]="activeTab === 'preferences'"
+                                (click)="switchTab('preferences')">
+                                <i class="fas fa-cog me-2"></i>Preferences
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card mt-4 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title fw-semibold">Account Summary</h6>
+                        <div class="stats-list">
+                            <div class="stat-item d-flex justify-content-between py-2">
+                                <span class="text-muted">Total Orders</span>
+                                <strong class="text-primary">{{ userStats.totalOrders }}</strong>
+                            </div>
+                            <div class="stat-item d-flex justify-content-between py-2">
+                                <span class="text-muted">Total Spent</span>
+                                <strong class="text-success">${{ userStats.totalSpent }}</strong>
+                            </div>
+                            <div class="stat-item d-flex justify-content-between py-2">
+                                <span class="text-muted">Pending Orders</span>
+                                <strong class="text-warning">{{ userStats.pendingOrders }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Success/Error Messages -->
+                <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ successMessage }}
+                    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+                </div>
+
+                <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ errorMessage }}
+                    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+                </div>
+
+                <!-- Profile Information Tab -->
+                <div *ngIf="activeTab === 'profile'" class="card shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-user me-2 text-primary"></i>Profile Information
+                            </h5>
+                            <button *ngIf="!isEditing" class="btn btn-outline-primary btn-sm" (click)="enableEditing()">
+                                <i class="fas fa-edit me-1"></i>Edit Profile
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form *ngIf="isEditing; else viewMode" [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Full Name</label>
+                                    <input type="text" class="form-control" formControlName="name"
+                                        [class.is-invalid]="f['name'].touched && f['name'].invalid">
+                                    <div class="invalid-feedback" *ngIf="f['name'].touched && f['name'].invalid">
+                                        Please enter a valid name (min 2 characters)
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Email Address</label>
+                                    <input type="email" class="form-control" formControlName="email"
+                                        [class.is-invalid]="f['email'].touched && f['email'].invalid">
+                                    <div class="invalid-feedback" *ngIf="f['email'].touched && f['email'].invalid">
+                                        Please enter a valid email address
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Phone Number</label>
+                                    <input type="tel" class="form-control" formControlName="phone"
+                                        placeholder="+855 12 345 678">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Address</label>
+                                    <input type="text" class="form-control" formControlName="address"
+                                        placeholder="123 Main Street">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">City</label>
+                                    <input type="text" class="form-control" formControlName="city"
+                                        placeholder="Phnom Penh">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">Country</label>
+                                    <input type="text" class="form-control" formControlName="country"
+                                        placeholder="Cambodia">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">ZIP Code</label>
+                                    <input type="text" class="form-control" formControlName="zipCode"
+                                        placeholder="12000">
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2" [disabled]="isLoading">
+                                    <span *ngIf="!isLoading">Save Changes</span>
+                                    <span *ngIf="isLoading">Saving...</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" (click)="cancelEditing()"
+                                    [disabled]="isLoading">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+
+                        <ng-template #viewMode>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold text-muted">Full Name</label>
+                                    <p class="fs-6">{{ user?.name }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold text-muted">Email Address</label>
+                                    <p class="fs-6">{{ user?.email }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold text-muted">Phone Number</label>
+                                    <p class="fs-6">{{ user?.phone || 'Not provided' }}</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold text-muted">Address</label>
+                                    <p class="fs-6">{{ user?.address || 'Not provided' }}</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold text-muted">City</label>
+                                    <p class="fs-6">{{ user?.city || 'Not provided' }}</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold text-muted">Country</label>
+                                    <p class="fs-6">{{ user?.country || 'Not provided' }}</p>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold text-muted">ZIP Code</label>
+                                    <p class="fs-6">{{ user?.zipCode || 'Not provided' }}</p>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+
+                <!-- Recent Orders Tab -->
+                <div *ngIf="activeTab === 'orders'" class="card shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-shopping-bag me-2 text-primary"></i>Recent Orders
+                            </h5>
+                            <a routerLink="/orders" class="btn btn-outline-primary btn-sm">
+                                View All Orders
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div *ngIf="orders.length === 0" class="text-center py-5">
+                            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                            <h5>No orders yet</h5>
+                            <p class="text-muted">You haven't placed any orders yet.</p>
+                            <a routerLink="/" class="btn btn-primary">Start Shopping</a>
+                        </div>
+
+                        <div *ngFor="let order of orders" class="order-item border-bottom pb-3 mb-3">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <strong>Order #{{ order.id }}</strong>
+                                    <div class="text-muted small">{{ order.date }}</div>
+                                </div>
+                                <div class="col-md-2">
+                                    <span class="badge" [ngClass]="getOrderStatusBadgeClass(order.status)">
+                                        {{ order.status }}
+                                    </span>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="small text-muted">
+                                        {{ order.items.length }} item(s)
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <strong class="text-success">${{ order.total }}</strong>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <button class="btn btn-outline-primary btn-sm" (click)="viewOrder(order.id)">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Tab -->
+                <div *ngIf="activeTab === 'security'" class="card shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-shield-alt me-2 text-primary"></i>Security Settings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div *ngIf="!isChangingPassword">
+                            <h6 class="fw-semibold mb-3">Password</h6>
+                            <p class="text-muted mb-4">Last changed: 2 months ago</p>
+                            <button class="btn btn-outline-primary" (click)="enablePasswordChange()">
+                                Change Password
+                            </button>
+                        </div>
+
+                        <form *ngIf="isChangingPassword" [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold">Current Password</label>
+                                    <input type="password" class="form-control" formControlName="currentPassword"
+                                        [class.is-invalid]="p['currentPassword'].touched && p['currentPassword'].invalid">
+                                    <div class="invalid-feedback"
+                                        *ngIf="p['currentPassword'].touched && p['currentPassword'].invalid">
+                                        Please enter your current password
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">New Password</label>
+                                    <input type="password" class="form-control" formControlName="newPassword"
+                                        [class.is-invalid]="p['newPassword'].touched && p['newPassword'].invalid">
+                                    <div class="invalid-feedback"
+                                        *ngIf="p['newPassword'].touched && p['newPassword'].invalid">
+                                        Password must be at least 6 characters
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Confirm New Password</label>
+                                    <input type="password" class="form-control" formControlName="confirmPassword"
+                                        [class.is-invalid]="p['confirmPassword'].touched && p['confirmPassword'].invalid">
+                                    <div class="invalid-feedback"
+                                        *ngIf="p['confirmPassword'].touched && p['confirmPassword'].invalid">
+                                        Passwords do not match
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2" [disabled]="isLoading">
+                                    <span *ngIf="!isLoading">Update Password</span>
+                                    <span *ngIf="isLoading">Updating...</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" (click)="cancelPasswordChange()"
+                                    [disabled]="isLoading">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-semibold mb-3">Two-Factor Authentication</h6>
+                        <p class="text-muted mb-3">Add an extra layer of security to your account.</p>
+                        <button class="btn btn-outline-warning">
+                            <i class="fas fa-mobile-alt me-2"></i>Enable 2FA
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preferences Tab -->
+                <div *ngIf="activeTab === 'preferences'" class="card shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cog me-2 text-primary"></i>Account Preferences
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <h6 class="fw-semibold mb-3">Email Notifications</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="promotionalEmails" checked>
+                                    <label class="form-check-label" for="promotionalEmails">
+                                        Promotional emails
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="orderUpdates" checked>
+                                    <label class="form-check-label" for="orderUpdates">
+                                        Order updates
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="newsletter">
+                                    <label class="form-check-label" for="newsletter">
+                                        Newsletter
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <h6 class="fw-semibold mb-3">Privacy Settings</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="showProfile" checked>
+                                    <label class="form-check-label" for="showProfile">
+                                        Show profile to other users
+                                    </label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="dataCollection">
+                                    <label class="form-check-label" for="dataCollection">
+                                        Allow data collection for improvements
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-semibold mb-3">Language & Region</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Language</label>
+                                <select class="form-select">
+                                    <option selected>English</option>
+                                    <option>Khmer</option>
+                                    <option>Chinese</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Time Zone</label>
+                                <select class="form-select">
+                                    <option selected>Asia/Phnom_Penh (UTC+7)</option>
+                                    <option>UTC</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button class="btn btn-primary">Save Preferences</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

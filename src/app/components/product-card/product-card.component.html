@@ -1,0 +1,286 @@
+<!-- Product Card -->
+<div class="product-card" [class.featured]="product.featured" [class.out-of-stock]="!isProductAvailable()"
+    [class.on-sale]="isOnSale()" [class.new-product]="isNewProduct()" (click)="viewDetails()"
+    [attr.aria-label]="getAriaLabel()" role="article" tabindex="0" (keydown.enter)="viewDetails()"
+    (keydown.space)="viewDetails(); $event.preventDefault()">
+
+    <!-- Product Badges -->
+    <div class="product-badges">
+        <span *ngIf="isNewProduct()" class="badge new-badge" aria-label="New product">
+            <i class="fas fa-sparkle me-1"></i>New
+        </span>
+        <span *ngIf="isOnSale()" class="badge sale-badge" [attr.aria-label]="'Discount: ' + getDiscountBadgeText()">
+            <i class="fas fa-tag me-1"></i>{{ getDiscountBadgeText() }}
+        </span>
+        <span *ngIf="hasFreeShipping()" class="badge shipping-badge" aria-label="Free shipping available">
+            <i class="fas fa-shipping-fast me-1"></i>Free Shipping
+        </span>
+        <span *ngIf="!isProductAvailable()" class="badge stock-badge" aria-label="Out of stock">
+            <i class="fas fa-times-circle me-1"></i>Out of Stock
+        </span>
+        <span *ngIf="isLowStock() && isProductAvailable()" class="badge low-stock-badge"
+            [attr.aria-label]="'Low stock: ' + getStockStatus()">
+            <i class="fas fa-exclamation-triangle me-1"></i>{{ getStockStatus() }}
+        </span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="product-actions">
+        <!-- Wishlist Button -->
+        <button class="action-btn wishlist-btn" (click)="toggleWishlist($event)" [class.active]="isInWishlist"
+            [attr.aria-label]="isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'"
+            [attr.aria-pressed]="isInWishlist">
+            <i [class]="isInWishlist ? 'fas fa-heart' : 'far fa-heart'"></i>
+        </button>
+
+        <!-- Quick View Button -->
+        <button class="action-btn quick-view-btn" (click)="openQuickView($event)" aria-label="Quick view">
+            <i class="fas fa-eye"></i>
+        </button>
+
+        <!-- Share Button -->
+        <button class="action-btn share-btn" (click)="shareProduct($event)" aria-label="Share product">
+            <i class="fas fa-share-alt"></i>
+        </button>
+    </div>
+
+    <!-- Product Image -->
+    <div class="product-image-container">
+        <div class="product-image" [class.loading]="!imageLoaded" [class.error]="imageError">
+            <img [src]="product.imageUrl" [alt]="product.name" (load)="handleImageLoad()"
+                (error)="handleImageError($event)" [style.opacity]="imageLoaded ? 1 : 0" loading="lazy">
+
+            <!-- Loading State -->
+            <div *ngIf="!imageLoaded && !imageError" class="image-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="imageError" class="image-error">
+                <i class="fas fa-image"></i>
+                <span>Image not available</span>
+            </div>
+        </div>
+
+        <!-- Quick Actions Overlay -->
+        <div class="product-overlay">
+            <button class="btn quick-action-btn add-to-cart-overlay" (click)="addToCart($event)"
+                [disabled]="!isProductAvailable()" aria-label="Add to cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Add to Cart</span>
+            </button>
+
+            <div class="overlay-actions">
+                <button class="action-icon compare-btn" (click)="addToCompare($event)" aria-label="Add to compare">
+                    <i class="fas fa-balance-scale"></i>
+                </button>
+                <button class="action-icon share-btn" (click)="shareProduct($event)" aria-label="Share product">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info">
+        <!-- Category -->
+        <div class="product-category" *ngIf="showCategory" [style.background]="getCategoryColor(product.categoryId)"
+            [attr.aria-label]="'Category: ' + getCategoryName(product.categoryId)">
+            {{ getCategoryName(product.categoryId) }}
+        </div>
+
+        <!-- Title -->
+        <h3 class="product-title" [title]="product.name">{{ product.name }}</h3>
+
+        <!-- Description -->
+        <p class="product-description" *ngIf="showDescription && product.description" [title]="product.description">
+            {{ product.description }}
+        </p>
+
+        <!-- Rating -->
+        <div class="product-rating" *ngIf="showRating">
+            <div class="stars" [attr.aria-label]="getRatingText()">
+                <i *ngFor="let star of getStarsArray(getStarRating().filled)" class="fas fa-star star filled"
+                    aria-hidden="true"></i>
+                <i *ngIf="getStarRating().half" class="fas fa-star-half-alt star half" aria-hidden="true"></i>
+                <i *ngFor="let star of getStarsArray(getStarRating().empty)" class="far fa-star star empty"
+                    aria-hidden="true"></i>
+            </div>
+            <span class="rating-info">
+                <span class="rating-value" aria-hidden="true">{{ getAverageRating() | number:'1.1-1' }}</span>
+                <span class="rating-count">({{ getReviewCount() }})</span>
+            </span>
+        </div>
+
+        <!-- Price -->
+        <div class="product-price">
+            <div class="price-main">
+                <span class="current-price"
+                    [attr.aria-label]="'Current price: $' + (getDiscountedPrice() | number:'1.2-2')">
+                    ${{ getDiscountedPrice() | number:'1.2-2' }}
+                </span>
+                <span *ngIf="isOnSale()" class="original-price"
+                    [attr.aria-label]="'Original price: $' + (product.price | number:'1.2-2')">
+                    ${{ product.price | number:'1.2-2' }}
+                </span>
+            </div>
+
+            <div *ngIf="isOnSale()" class="price-savings">
+                <span class="savings" [attr.aria-label]="'You save $' + (getSavingsAmount() | number:'1.2-2')">
+                    Save ${{ getSavingsAmount() | number:'1.2-2' }}
+                </span>
+                <span class="savings-percent" *ngIf="getSavingsPercentage() > 0">
+                    ({{ getSavingsPercentage() }}% off)
+                </span>
+            </div>
+        </div>
+
+
+        <!-- Stock Status & Progress -->
+        <div class="stock-section" *ngIf="isProductAvailable()">
+            <div class="stock-status" [class]="getStockBadgeClass()" [attr.aria-label]="getStockStatus()">
+                <i [class]="
+        getStockBadgeClass() === 'stock-available' ? 'fas fa-check' :
+        getStockBadgeClass() === 'stock-low' ? 'fas fa-exclamation-triangle' :
+        'fas fa-times'
+    "></i>
+                {{ getStockStatus() }}
+            </div>
+
+            <div *ngIf="isLowStock()" class="stock-progress"
+                [attr.aria-label]="'Stock level: ' + getStockPercentage() + '%'">
+                <div class="stock-progress-bar" [style.width.%]="getStockPercentage()"></div>
+            </div>
+        </div>
+
+
+        <!-- Quick Add to Cart -->
+        <div class="quick-add-section" *ngIf="showActions">
+            <button class="btn quick-add-btn" (click)="quickAddToCart()" [disabled]="!isProductAvailable()"
+                aria-label="Quick add to cart">
+                <i class="fas fa-bolt"></i>
+                Quick Add
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick View Modal -->
+<div *ngIf="showQuickView" class="quick-view-modal" role="dialog" aria-labelledby="quick-view-title" aria-modal="true">
+    <div class="modal-overlay" (click)="closeQuickView()"></div>
+    <div class="modal-content">
+        <!-- Close Button -->
+        <button class="close-btn" (click)="closeQuickView()" aria-label="Close quick view">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="quick-view-body">
+            <!-- Product Images -->
+            <div class="product-gallery">
+                <div class="main-image">
+                    <img [src]="product.imageUrl" [alt]="product.name" (error)="handleImageError($event)">
+                </div>
+                <!-- Additional images could go here -->
+            </div>
+
+            <!-- Product Details -->
+            <div class="product-details">
+                <!-- Header -->
+                <div class="details-header">
+                    <div class="category-badge">
+                        {{ getCategoryName(product.categoryId) }}
+                    </div>
+                    <h2 id="quick-view-title" class="product-title">{{ product.name }}</h2>
+
+                    <!-- Rating -->
+                    <div class="product-rating-large">
+                        <div class="stars">
+                            <i *ngFor="let star of getStarsArray(getStarRating().filled)"
+                                class="fas fa-star star filled"></i>
+                            <i *ngIf="getStarRating().half" class="fas fa-star-half-alt star half"></i>
+                            <i *ngFor="let star of getStarsArray(getStarRating().empty)"
+                                class="far fa-star star empty"></i>
+                        </div>
+                        <span class="rating-text">{{ getRatingText() }}</span>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="price-section-large">
+                    <div class="current-price-large">
+                        ${{ getDiscountedPrice() | number:'1.2-2' }}
+                    </div>
+                    <div *ngIf="isOnSale()" class="original-price-large">
+                        ${{ product.price | number:'1.2-2' }}
+                    </div>
+                    <div *ngIf="isOnSale()" class="savings-large">
+                        You save ${{ getSavingsAmount() | number:'1.2-2' }} ({{ getSavingsPercentage() }}% off)
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="description-section" *ngIf="product.description">
+                    <h4>Description</h4>
+                    <p>{{ product.description }}</p>
+                </div>
+
+                <!-- Stock Info -->
+                <div class="stock-info">
+                    <div class="stock-status-large" [class]="getStockBadgeClass()">
+                        <i
+                            [class]="getStockBadgeClass() === 'stock-available' ? 'fas fa-check' : 
+                                   getStockBadgeClass() === 'stock-low' ? 'fas fa-exclamation-triangle' : 'fas fa-times'"></i>
+                        {{ getStockStatus() }}
+                    </div>
+                    <div *ngIf="hasFreeShipping()" class="shipping-info">
+                        <i class="fas fa-shipping-fast"></i>
+                        Free shipping on this item
+                    </div>
+                </div>
+
+                <!-- Quantity Selector -->
+                <div class="quantity-section">
+                    <label for="quantity-selector" class="quantity-label">Quantity:</label>
+                    <div class="quantity-controls-large">
+                        <button (click)="decreaseQuantity()" [disabled]="quantity <= 1" aria-label="Decrease quantity">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <input id="quantity-selector" type="number" [value]="quantity" (change)="setQuantity($event)"
+                            min="1" [max]="product.stock" aria-label="Product quantity">
+
+
+                        <button (click)="increaseQuantity()" [disabled]="quantity >= product.stock"
+                            aria-label="Increase quantity">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="stock-available" *ngIf="isProductAvailable()">
+                        {{ product.stock }} available
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn add-to-cart-btn-large" (click)="addToCartFromQuickView()"
+                        [disabled]="!isProductAvailable()" aria-label="Add to cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        Add to Cart - ${{ (getDiscountedPrice() * quantity) | number:'1.2-2' }}
+                    </button>
+
+                    <div class="secondary-actions">
+                        <button class="btn wishlist-btn-large" (click)="toggleWishlist($event)"
+                            [class.active]="isInWishlist" aria-label="Add to wishlist">
+                            <i [class]="isInWishlist ? 'fas fa-heart' : 'far fa-heart'"></i>
+                            {{ isInWishlist ? 'In Wishlist' : 'Add to Wishlist' }}
+                        </button>
+
+                        <button class="btn share-btn-large" (click)="shareProduct($event)" aria-label="Share product">
+                            <i class="fas fa-share-alt"></i>
+                            Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

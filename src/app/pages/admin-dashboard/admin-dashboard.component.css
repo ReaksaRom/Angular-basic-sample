@@ -1,0 +1,201 @@
+.admin-dashboard {
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.dashboard-header {
+    background: white;
+    padding: 2rem 0;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    opacity: 0.8;
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.25rem;
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.card-title {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.chart-placeholder {
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 2px dashed #dee2e6;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    background: #f8f9fa;
+}
+
+.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.clickable-row:hover {
+    background-color: #f8f9fa;
+}
+
+.product-item,
+.user-item {
+    padding: 0.5rem;
+    border-radius: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.product-item:hover,
+.user-item:hover {
+    background-color: #f8f9fa;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+}
+
+.btn-outline-primary:hover {
+    transform: translateY(-2px);
+}
+
+.quick-actions .btn {
+    border-radius: 12px;
+    padding: 1.5rem 0.5rem;
+}
+
+.quick-actions .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.badge {
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-weight: 500;
+}
+
+.progress {
+    border-radius: 10px;
+    background: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 1rem 0;
+    }
+
+    .display-5 {
+        font-size: 2rem;
+    }
+
+    .stat-card .fa-2x {
+        font-size: 1.5rem;
+    }
+
+    .quick-actions .btn {
+        padding: 1rem 0.5rem;
+    }
+
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .col-6 {
+        padding: 0 5px;
+    }
+
+    .stat-card .card-body {
+        padding: 1rem;
+    }
+
+    .stat-card h4 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Custom scrollbar for tables */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

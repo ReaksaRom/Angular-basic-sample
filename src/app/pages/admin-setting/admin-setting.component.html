@@ -1,0 +1,409 @@
+<div class="container">
+    <!-- admin-settings.component.html -->
+    <div class="admin-settings">
+        <!-- Header -->
+        <div class="settings-header">
+            <div class="header-content">
+                <h1 class="page-title fs-3">
+                    <i class="fas fa-cog me-3"></i>
+                    Store Settings
+                </h1>
+                <p class="page-subtitle">Manage your store configuration and preferences</p>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn btn-outline-secondary me-2" (click)="exportSettings()">
+                    <i class="fas fa-download me-2"></i>
+                    Export
+                </button>
+
+                <label class="btn btn-outline-primary me-2">
+                    <i class="fas fa-upload me-2"></i>
+                    Import
+                    <input type="file" hidden (change)="importSettings($event)" accept=".json">
+                </label>
+
+                <button class="btn btn-outline-danger" (click)="resetSettings()">
+                    <i class="fas fa-refresh me-2"></i>
+                    Reset to Default
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="loading-state text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading settings...</span>
+            </div>
+            <p class="mt-3 text-muted">Loading settings...</p>
+        </div>
+
+        <!-- Settings Content -->
+        <div *ngIf="!isLoading" class="settings-content">
+            <!-- Tabs Navigation -->
+            <nav class="settings-tabs">
+                <ul class="nav nav-pills">
+                    <li class="nav-item">
+                        <button class="nav-link" [class.active]="activeTab === 'general'"
+                            (click)="onTabChange('general')">
+                            <i class="fas fa-sliders-h me-2"></i>
+                            General
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" [class.active]="activeTab === 'store'" (click)="onTabChange('store')">
+                            <i class="fas fa-store me-2"></i>
+                            Store
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" [class.active]="activeTab === 'notifications'"
+                            (click)="onTabChange('notifications')">
+                            <i class="fas fa-bell me-2"></i>
+                            Notifications
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" [class.active]="activeTab === 'shipping'"
+                            (click)="onTabChange('shipping')">
+                            <i class="fas fa-shipping-fast me-2"></i>
+                            Shipping
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Tab Content -->
+            <div class="tab-content mt-4">
+
+                <!-- General Settings -->
+                <div *ngIf="activeTab === 'general'" class="tab-pane fade show active">
+                    <form [formGroup]="settingsForm" (ngSubmit)="saveGeneralSettings()">
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-info-circle me-2"></i>Store Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Store Name *</label>
+                                            <input type="text" class="form-control" formControlName="storeName"
+                                                [class.is-invalid]="settingsForm.get('storeName')?.invalid && settingsForm.get('storeName')?.touched">
+                                            <div class="invalid-feedback">
+                                                Store name is required and must be at least 3 characters long.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Store Email *</label>
+                                            <input type="email" class="form-control" formControlName="storeEmail"
+                                                [class.is-invalid]="settingsForm.get('storeEmail')?.invalid && settingsForm.get('storeEmail')?.touched">
+                                            <div class="invalid-feedback">
+                                                Please enter a valid email address.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Store Phone *</label>
+                                            <input type="tel" class="form-control" formControlName="storePhone">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Currency *</label>
+                                            <select class="form-select" formControlName="currency">
+                                                <option *ngFor="let currency of currencies" [value]="currency.code">
+                                                    {{ currency.name }} ({{ currency.symbol }})
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Store Address *</label>
+                                    <textarea class="form-control" rows="3" formControlName="storeAddress"></textarea>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Timezone *</label>
+                                            <select class="form-select" formControlName="timezone">
+                                                <option *ngFor="let tz of timezones" [value]="tz">{{ tz }}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Theme *</label>
+                                            <select class="form-select" formControlName="theme">
+                                                <option *ngFor="let theme of themes" [value]="theme.id">
+                                                    {{ theme.name }}
+                                                </option>
+                                            </select>
+                                            <small class="form-text text-muted">
+                                                {{ themeDisplay}}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-actions mt-4">
+                            <button type="submit" class="btn btn-primary" [disabled]="isSaving || settingsForm.invalid">
+                                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                                <i *ngIf="!isSaving" class="fas fa-save me-2"></i>
+                                {{ isSaving ? 'Saving...' : 'Save General Settings' }}
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary ms-2" (click)="settingsForm.reset()">
+                                Reset Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Store Settings -->
+                <div *ngIf="activeTab === 'store'" class="tab-pane fade show active">
+                    <form [formGroup]="storeSettingsForm" (ngSubmit)="saveStoreSettings()">
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-store me-2"></i>Store Configuration</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="maintenanceMode">
+                                            <label class="form-check-label">Maintenance Mode</label>
+                                            <small class="form-text text-muted d-block">
+                                                When enabled, store will be inaccessible to customers.
+                                            </small>
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="allowRegistration">
+                                            <label class="form-check-label">Allow User Registration</label>
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="requireEmailVerification">
+                                            <label class="form-check-label">Require Email Verification</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="enableWishlist">
+                                            <label class="form-check-label">Enable Wishlist Feature</label>
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="enableReviews">
+                                            <label class="form-check-label">Enable Product Reviews</label>
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="enableRatings">
+                                            <label class="form-check-label">Enable Product Ratings</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mt-4">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Minimum Order Amount ($)</label>
+                                            <input type="number" class="form-control" formControlName="minOrderAmount"
+                                                min="0" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Free Shipping Amount ($)</label>
+                                            <input type="number" class="form-control"
+                                                formControlName="freeShippingAmount" min="0" step="0.01">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Tax Rate (%)</label>
+                                            <input type="number" class="form-control" formControlName="taxRate" min="0"
+                                                max="100" step="0.1">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-actions mt-4">
+                            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+                                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                                <i *ngIf="!isSaving" class="fas fa-save me-2"></i>
+                                {{ isSaving ? 'Saving...' : 'Save Store Settings' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Notification Settings -->
+                <div *ngIf="activeTab === 'notifications'" class="tab-pane fade show active">
+                    <form [formGroup]="notificationSettingsForm" (ngSubmit)="saveNotificationSettings()">
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-bell me-2"></i>Notification Preferences</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="mb-3">Email Notifications</h6>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="emailNotifications">
+                                            <label class="form-check-label">Enable Email Notifications</label>
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="orderNotifications">
+                                            <label class="form-check-label">New Order Notifications</label>
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="lowStockNotifications">
+                                            <label class="form-check-label">Low Stock Alerts</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <h6 class="mb-3">Reports & Analytics</h6>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="newUserNotifications">
+                                            <label class="form-check-label">New User Registrations</label>
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="salesReports">
+                                            <label class="form-check-label">Sales Reports</label>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Report Frequency</label>
+                                            <select class="form-select" formControlName="reportFrequency">
+                                                <option value="daily">Daily</option>
+                                                <option value="weekly">Weekly</option>
+                                                <option value="monthly">Monthly</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Admin Email for Notifications</label>
+                                            <input type="email" class="form-control" formControlName="adminEmail">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-actions mt-4">
+                            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+                                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                                <i *ngIf="!isSaving" class="fas fa-save me-2"></i>
+                                {{ isSaving ? 'Saving...' : 'Save Notification Settings' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Shipping Settings -->
+                <div *ngIf="activeTab === 'shipping'" class="tab-pane fade show active">
+                    <form [formGroup]="shippingSettingsForm" (ngSubmit)="saveShippingSettings()">
+                        <div class="settings-card">
+                            <div class="card-header">
+                                <h5><i class="fas fa-shipping-fast me-2"></i>Shipping Configuration</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check form-switch mb-4">
+                                    <input class="form-check-input" type="checkbox" formControlName="enableShipping">
+                                    <label class="form-check-label">Enable Shipping</label>
+                                </div>
+
+                                <div class="row" *ngIf="shippingSettingsForm.get('enableShipping')?.value">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Shipping Method</label>
+                                            <select class="form-select" formControlName="shippingMethod">
+                                                <option value="flat_rate">Flat Rate</option>
+                                                <option value="free_shipping">Free Shipping</option>
+                                                <option value="local_pickup">Local Pickup</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3"
+                                            *ngIf="shippingSettingsForm.get('shippingMethod')?.value === 'flat_rate'">
+                                            <label class="form-label">Flat Rate Amount ($)</label>
+                                            <input type="number" class="form-control" formControlName="flatRate" min="0"
+                                                step="0.01">
+                                        </div>
+
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="freeShippingEnabled">
+                                            <label class="form-check-label">Enable Free Shipping</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox"
+                                                formControlName="localDelivery">
+                                            <label class="form-check-label">Enable Local Delivery</label>
+                                        </div>
+
+                                        <div class="mb-3" *ngIf="shippingSettingsForm.get('localDelivery')?.value">
+                                            <label class="form-label">Delivery Radius (km)</label>
+                                            <input type="number" class="form-control" formControlName="deliveryRadius"
+                                                min="0">
+                                        </div>
+
+                                        <div class="mb-3" *ngIf="shippingSettingsForm.get('localDelivery')?.value">
+                                            <label class="form-label">Delivery Fee ($)</label>
+                                            <input type="number" class="form-control" formControlName="deliveryFee"
+                                                min="0" step="0.01">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-actions mt-4">
+                            <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+                                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                                <i *ngIf="!isSaving" class="fas fa-save me-2"></i>
+                                {{ isSaving ? 'Saving...' : 'Save Shipping Settings' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,379 @@
+<div class="container">
+    <div class=" admin-dashboard">
+        <!-- Header -->
+        <div class="dashboard-header mb-4 p-3">
+            <div class="row ">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="display-5 fs-3 fw-bold text-dark">
+                                <i class="fas fa-tachometer-alt me-3 text-primary"></i>Admin Dashboard
+                            </h1>
+                            <p class="text-muted">Welcome back! Here's what's happening with your store today.</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary">
+                                    <i class="fas fa-download me-2"></i>Export Report
+                                </button>
+                                <button class="btn btn-primary" (click)="loadDashboardData()">
+                                    <i class="fas fa-sync-alt me-2"></i>Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h4 class="mb-0">{{ stats.totalRevenue | currency:'USD':'symbol':'1.0-0' }}</h4>
+                                <small>Total Revenue</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h4 class="mb-0">{{ stats.totalOrders }}</h4>
+                                <small>Total Orders</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h4 class="mb-0">{{ stats.totalProducts }}</h4>
+                                <small>Total Products</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-box fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h4 class="mb-0">{{ stats.totalUsers }}</h4>
+                                <small>Total Users</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-danger text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h4 class="mb-0">{{ stats.pendingOrders }}</h4>
+                                <small>Pending Orders</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6 mb-3">
+                <div class="card stat-card bg-secondary text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h4 class="mb-0">{{ stats.lowStockProducts }}</h4>
+                                <small>Low Stock</small>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Main Content -->
+        <div class="row">
+            <!-- Revenue Chart -->
+            <div class="col-xl-8 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2 text-primary"></i>Revenue Overview
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-placeholder">
+                            <div class="text-center py-5">
+                                <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                                <h6>Revenue Chart</h6>
+                                <p class="text-muted small">Monthly revenue visualization would appear here</p>
+                                <div class="revenue-stats mt-3">
+                                    <div class="d-flex justify-content-around text-center">
+                                        <div>
+                                            <div class="h5 text-success">+12%</div>
+                                            <small class="text-muted">This Month</small>
+                                        </div>
+                                        <div>
+                                            <div class="h5 text-primary">${{ stats.totalRevenue | number:'1.0-0' }}
+                                            </div>
+                                            <small class="text-muted">Total Revenue</small>
+                                        </div>
+                                        <div>
+                                            <div class="h5 text-info">{{ stats.totalOrders }}</div>
+                                            <small class="text-muted">Total Orders</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales by Category -->
+            <div class="col-xl-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-pie me-2 text-success"></i>Sales by Category
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-placeholder">
+                            <div class="text-center py-4">
+                                <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                                <h6>Category Distribution</h6>
+                                <p class="text-muted small">Product category sales breakdown</p>
+                                <div class="category-stats mt-3">
+                                    <div *ngFor="let category of salesData.labels; let i = index"
+                                        class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small">{{ category }}</span>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress flex-grow-1 me-2" style="width: 100px; height: 8px;">
+                                                <div class="progress-bar"
+                                                    [style.background]="salesData.datasets[0].backgroundColor[i]"
+                                                    [style.width]="salesData.datasets[0].data[i] + '%'"></div>
+                                            </div>
+                                            <span class="small text-muted">{{ salesData.datasets[0].data[i] }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row">
+            <!-- Recent Orders -->
+            <div class="col-xl-6 mb-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-shopping-cart me-2 text-warning"></i>Recent Orders
+                        </h5>
+                        <button class="btn btn-sm btn-outline-primary" (click)="navigateTo('orders')">
+                            View All
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let order of recentOrders" class="clickable-row"
+                                        (click)="navigateTo('orders')">
+                                        <td><strong>#{{ order.id }}</strong></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img [src]="getUserAvatar(order.userId)" class="rounded-circle me-2"
+                                                    style="width: 30px; height: 30px; object-fit: cover;">
+                                                <span>{{ getUserName(order.userId) }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ order.date }}</td>
+                                        <td class="text-success fw-bold">${{ order.total }}</td>
+                                        <td>
+                                            <span class="badge" [ngClass]="getOrderStatusBadgeClass(order.status)">
+                                                {{ order.status }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr *ngIf="recentOrders.length === 0">
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                                            <p>No orders yet</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Products & Users -->
+            <div class="col-xl-6">
+                <div class="row">
+                    <!-- Recent Products -->
+                    <div class="col-12 mb-4">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-box me-2 text-info"></i>Recent Products
+                                </h5>
+                                <button class="btn btn-sm btn-outline-primary" (click)="navigateTo('products')">
+                                    View All
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div *ngFor="let product of recentProducts"
+                                    class="product-item d-flex align-items-center mb-3">
+                                    <img [src]="product.imageUrl" [alt]="product.name" class="rounded me-3"
+                                        style="width: 50px; height: 50px; object-fit: cover;">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ product.name }}</h6>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-success fw-bold">${{ product.price }}</span>
+                                            <small [ngClass]="getStockStatus(product.stock).class">
+                                                {{ getStockStatus(product.stock).text }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="recentProducts.length === 0" class="text-center text-muted">
+                                    <i class="fas fa-box fa-2x mb-2"></i>
+                                    <p>No products added yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Users -->
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-users me-2 text-success"></i>Recent Customers
+                                </h5>
+                                <button class="btn btn-sm btn-outline-primary" (click)="navigateTo('users')">
+                                    View All
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div *ngFor="let user of recentUsers" class="user-item d-flex align-items-center mb-3">
+                                    <img [src]="user.avatar" [alt]="user.name" class="rounded-circle me-3"
+                                        style="width: 40px; height: 40px; object-fit: cover;">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">{{ user.name }}</h6>
+                                        <small class="text-muted">{{ user.email }}</small>
+                                    </div>
+                                    <span class="badge bg-light text-dark">{{ user.role }}</span>
+                                </div>
+                                <div *ngIf="recentUsers.length === 0" class="text-center text-muted">
+                                    <i class="fas fa-users fa-2x mb-2"></i>
+                                    <p>No customers yet</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-bolt me-2 text-warning"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-2 col-4 mb-3">
+                                <button class="btn btn-outline-primary w-100 h-100 py-3"
+                                    (click)="navigateTo('products')">
+                                    <i class="fas fa-plus fa-2x mb-2"></i>
+                                    <div>Add Product</div>
+                                </button>
+                            </div>
+                            <div class="col-md-2 col-4 mb-3">
+                                <button class="btn btn-outline-success w-100 h-100 py-3" (click)="navigateTo('orders')">
+                                    <i class="fas fa-shopping-cart fa-2x mb-2"></i>
+                                    <div>View Orders</div>
+                                </button>
+                            </div>
+                            <div class="col-md-2 col-4 mb-3">
+                                <button class="btn btn-outline-info w-100 h-100 py-3" (click)="navigateTo('users')">
+                                    <i class="fas fa-users fa-2x mb-2"></i>
+                                    <div>Manage Users</div>
+                                </button>
+                            </div>
+                            <div class="col-md-2 col-4 mb-3">
+                                <button class="btn btn-outline-warning w-100 h-100 py-3"
+                                    (click)="navigateTo('analytics')">
+                                    <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                                    <div>Reports</div>
+                                </button>
+                            </div>
+                            <div class="col-md-2 col-4 mb-3">
+                                <button class="btn btn-outline-danger w-100 h-100 py-3"
+                                    (click)="navigateTo('settings')">
+
+                                    <i class="fas fa-cog fa-2x mb-2"></i>
+                                    <div>Settings</div>
+                                </button>
+                            </div>
+                            <div class="col-md-2 col-4 mb-3">
+                                <button class="btn btn-outline-secondary w-100 h-100 py-3" (click)="navigateTo('help')">
+                                    <i class="fas fa-question-circle fa-2x mb-2"></i>
+                                    <div>Help</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

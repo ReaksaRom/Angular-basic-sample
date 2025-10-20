@@ -1,0 +1,137 @@
+<div class="admin-layout">
+    <!-- Admin Sidebar -->
+    <app-admin-sidebar [isCollapsed]="isSidebarCollapsed" [isMobileOpen]="showMobileSidebar"
+        (toggle)="onSidebarToggle($event)" (closeMobile)="closeMobileSidebar()">
+    </app-admin-sidebar>
+
+    <!-- Main Content Area -->
+    <main class="admin-main" [class.sidebar-collapsed]="isSidebarCollapsed"
+        [class.mobile-sidebar-open]="showMobileSidebar">
+
+        <!-- Top Navigation Bar -->
+        <header class="admin-header">
+            <div class="header-content">
+                <!-- Left Section: Breadcrumb and Menu Toggle -->
+                <div class="header-left">
+                    <button class="sidebar-toggle-mobile" (click)="toggleMobileSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+
+                    <button class="sidebar-toggle-desktop" (click)="toggleSidebar()">
+                        <i class="fas" [class.fa-chevron-left]="!isSidebarCollapsed"
+                            [class.fa-chevron-right]="isSidebarCollapsed"></i>
+                    </button>
+
+                    <!-- Breadcrumb -->
+                    <nav class="breadcrumb" aria-label="breadcrumb">
+                        <ol class="breadcrumb-list">
+                            <li *ngFor="let crumb of breadcrumbs; let last = last" class="breadcrumb-item"
+                                [class.active]="last">
+                                <a *ngIf="!last && crumb.url" [routerLink]="crumb.url" class="breadcrumb-link">
+                                    {{ crumb.label }}
+                                </a>
+                                <span *ngIf="last" class="breadcrumb-text  ">
+                                    {{ crumb.label }}
+                                </span>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Center Section: Page Title -->
+                <div class="header-center">
+                    <!-- <h1 class="page-title">{{ currentPageTitle }}</h1> -->
+                    <p class="page-subtitle " *ngIf="user">
+                        {{ getGreeting() }}, {{ user.name }}! 👋
+                    </p>
+                </div>
+
+                <!-- Right Section: User Menu and Actions -->
+                <div class="header-right">
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <button *ngFor="let action of quickActions" class="btn quick-action-btn"
+                            [ngClass]="action.class" (click)="onQuickAction(action.action)" [title]="action.label">
+                            <i [class]="action.icon"></i>
+                            <span class="action-label">{{ action.label }}</span>
+                            <span *ngIf="action.badge" class="action-badge">{{ action.badge }}</span>
+                        </button>
+                    </div>
+
+                    <!-- User Menu -->
+                    <div class="user-menu">
+                        <div class="user-dropdown">
+                            <button class="user-dropdown-toggle" (click)="toggleUserDropdown()">
+                                <img [src]="user?.avatar" [alt]="user?.name" class="user-avatar">
+                                <span class="user-name">{{ user?.name }}</span>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </button>
+
+                            <div class="user-dropdown-menu">
+                                <div class="dropdown-header">
+                                    <img [src]="user?.avatar" [alt]="user?.name" class="dropdown-avatar">
+                                    <div class="dropdown-user-info">
+                                        <strong>{{ user?.name }}</strong>
+                                        <small>{{ user?.email }}</small>
+                                        <span class="user-role">{{ user?.role | titlecase }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="dropdown-divider"></div>
+
+                                <a class="dropdown-item" (click)="navigateTo('/profile')">
+                                    <i class="fas fa-user"></i>
+                                    My Profile
+                                </a>
+                                <a class="dropdown-item" (click)="navigateTo('/admin/settings')">
+                                    <i class="fas fa-cog"></i>
+                                    Settings
+                                </a>
+                                <a class="dropdown-item" (click)="goToStore()">
+                                    <i class="fas fa-store"></i>
+                                    Visit Store
+                                </a>
+
+                                <div class="dropdown-divider"></div>
+
+                                <a class="dropdown-item logout-item" (click)="logout()">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="admin-content">
+            <router-outlet></router-outlet>
+        </div>
+
+        <!-- Footer -->
+        <footer class="admin-footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <span class="footer-text">
+                        &copy; 2024 TechStore Admin. All rights reserved.
+                    </span>
+                </div>
+                <div class="footer-right">
+                    <span class="footer-links">
+                        <a href="#">Privacy Policy</a>
+                        <a href="#">Terms of Service</a>
+                        <a href="#">Help Center</a>
+                    </span>
+                    <span class="footer-version">
+                        v2.1.0
+                    </span>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" *ngIf="showMobileSidebar" (click)="closeMobileSidebar()"></div>
+</div>

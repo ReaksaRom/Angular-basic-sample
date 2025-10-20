@@ -1,0 +1,459 @@
+<div class="container">
+    <div class="admin-analytics-page">
+        <!-- Header -->
+        <div class="page-header mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1 class="display-5 fs-3 fw-bold text-dark">
+                        <i class="fas fa-chart-bar me-3 text-primary"></i>Analytics Dashboard
+                    </h1>
+                    <p class="text-muted">Track your store performance and business metrics</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" (click)="exportReport()">
+                            <i class="fas fa-download me-2"></i>Export Report
+                        </button>
+                        <button class="btn btn-primary" (click)="refreshData()" [disabled]="isLoading">
+                            <i class="fas fa-sync-alt me-2" [class.fa-spin]="isLoading"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Range Selector -->
+        <div class="card filters-card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h6 class="fw-semibold mb-0">Analytics Period</h6>
+                        <small class="text-muted">Select time range for analytics data</small>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="btn-group w-100">
+                            <button *ngFor="let range of dateRanges" class="btn btn-sm"
+                                [class.btn-primary]="dateRange === range.value"
+                                [class.btn-outline-primary]="dateRange !== range.value"
+                                (click)="dateRange = range.value; loadAnalyticsData()">
+                                {{ range.label }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center py-5">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5>Loading Analytics Data...</h5>
+            <p class="text-muted">Crunching numbers and generating insights</p>
+        </div>
+
+        <!-- Key Metrics -->
+        <div *ngIf="!isLoading" class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card metric-card bg-gradient-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ keyMetrics.totalRevenue | currency:'USD':'symbol':'1.0-0' }}</h3>
+                                <small>Total Revenue</small>
+                            </div>
+                            <div class="metric-icon">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="metric-growth mt-2">
+                            <span class="badge bg-success">
+                                <i class="fas fa-arrow-up me-1"></i>{{ keyMetrics.revenueGrowth }}%
+                            </span>
+                            <small class="ms-2">vs previous period</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card metric-card bg-gradient-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ keyMetrics.totalOrders }}</h3>
+                                <small>Total Orders</small>
+                            </div>
+                            <div class="metric-icon">
+                                <i class="fas fa-shopping-cart fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="metric-growth mt-2">
+                            <span class="badge bg-success">
+                                <i class="fas fa-arrow-up me-1"></i>{{ keyMetrics.orderGrowth }}%
+                            </span>
+                            <small class="ms-2">vs previous period</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card metric-card bg-gradient-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ keyMetrics.totalCustomers }}</h3>
+                                <small>Total Customers</small>
+                            </div>
+                            <div class="metric-icon">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="metric-growth mt-2">
+                            <span class="badge bg-success">
+                                <i class="fas fa-arrow-up me-1"></i>{{ keyMetrics.customerGrowth }}%
+                            </span>
+                            <small class="ms-2">vs previous period</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6 mb-3">
+                <div class="card metric-card bg-gradient-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-grow-1">
+                                <h3 class="mb-1">{{ keyMetrics.avgOrderValue | currency:'USD':'symbol':'1.2-2' }}</h3>
+                                <small>Avg Order Value</small>
+                            </div>
+                            <div class="metric-icon">
+                                <i class="fas fa-chart-line fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="metric-growth mt-2">
+                            <span class="badge bg-success">
+                                <i class="fas fa-arrow-up me-1"></i>5.2%
+                            </span>
+                            <small class="ms-2">vs previous period</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Metrics -->
+        <div *ngIf="!isLoading" class="row mb-4">
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body py-3">
+                        <div class="h4 text-primary mb-1">{{ keyMetrics.conversionRate }}%</div>
+                        <small class="text-muted">Conversion Rate</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body py-3">
+                        <div class="h4 text-success mb-1">{{ getProductStock }}</div>
+                        <small class="text-muted">Products in Stock</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body py-3">
+                        <div class="h4 text-warning mb-1">{{ orderStatus }}</div>
+                        <small class="text-muted">Pending Orders</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6 mb-3">
+                <div class="card text-center">
+                    <div class="card-body py-3">
+                        <div class="h4 text-info mb-1">{{ users.length }}</div>
+                        <small class="text-muted">Total Customers</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Charts -->
+        <div *ngIf="!isLoading" class="row">
+            <!-- Revenue Chart -->
+            <div class="col-xl-8 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-line me-2 text-success"></i>Revenue Overview
+                        </h5>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary active">Monthly</button>
+                            <button class="btn btn-outline-secondary">Quarterly</button>
+                            <button class="btn btn-outline-secondary">Yearly</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <div class="chart-placeholder revenue-chart">
+                                <div class="chart-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #28a745"></span>
+                                        <span>Current Year</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #6c757d"></span>
+                                        <span>Previous Year</span>
+                                    </div>
+                                </div>
+                                <div class="chart-bars">
+                                    <div *ngFor="let data of revenueChartData.datasets[0].data; let i = index"
+                                        class="chart-bar-group">
+                                        <div class="bar-labels">
+                                            <small class="text-muted">{{ revenueChartData.labels[i] }}</small>
+                                        </div>
+                                        <div class="bars-container">
+                                            <div class="bar previous-bar"
+                                                [style.height]="(revenueChartData.datasets[1].data[i] / 50000 * 100) + '%'">
+                                                <div class="bar-value">${{ (revenueChartData.datasets[1].data[i] /
+                                                    1000).toFixed(0) }}k</div>
+                                            </div>
+                                            <div class="bar current-bar" [style.height]="(data / 50000 * 100) + '%'">
+                                                <div class="bar-value">${{ (data / 1000).toFixed(0) }}k</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales by Category -->
+            <div class="col-xl-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-pie me-2 text-primary"></i>Sales by Category
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <div class="chart-placeholder pie-chart">
+                                <div class="pie-chart-visual">
+                                    <div class="pie-slice"
+                                        *ngFor="let data of salesChartData.datasets[0].data; let i = index"
+                                        [style.background]="salesChartData.datasets[0].backgroundColor[i]"
+                                        [style.transform]="'rotate(' + (i * 72) + 'deg)'"
+                                        [style.--percentage]="(data / 100 * 360) + 'deg'">
+                                    </div>
+                                </div>
+                                <div class="pie-legend">
+                                    <div *ngFor="let label of salesChartData.labels; let i = index" class="legend-item">
+                                        <span class="legend-color"
+                                            [style.background]="salesChartData.datasets[0].backgroundColor[i]"></span>
+                                        <span class="legend-label">{{ label }}</span>
+                                        <span class="legend-value">{{ salesChartData.datasets[0].data[i] }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Charts -->
+        <div *ngIf="!isLoading" class="row">
+            <!-- Customer Growth -->
+            <div class="col-xl-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-users me-2 text-info"></i>Customer Growth
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <div class="chart-placeholder line-chart">
+                                <div class="chart-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #007bff"></span>
+                                        <span>New Customers</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #28a745"></span>
+                                        <span>Returning Customers</span>
+                                    </div>
+                                </div>
+                                <div class="line-chart-grid">
+                                    <div class="grid-lines">
+                                        <div class="grid-line" *ngFor="let i of [0,1,2,3,4]"></div>
+                                    </div>
+                                    <div class="line-data">
+                                        <div class="line new-customers"
+                                            *ngFor="let point of customerChartData.datasets[0].data; let i = index"
+                                            [style.left]="(i * 20) + '%'" [style.bottom]="(point / 200 * 100) + '%'">
+                                        </div>
+                                        <div class="line returning-customers"
+                                            *ngFor="let point of customerChartData.datasets[1].data; let i = index"
+                                            [style.left]="(i * 20) + '%'" [style.bottom]="(point / 200 * 100) + '%'">
+                                        </div>
+                                    </div>
+                                    <div class="x-axis">
+                                        <div *ngFor="let label of customerChartData.labels" class="x-label">
+                                            {{ label }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="col-xl-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-star me-2 text-warning"></i>Top Performing Products
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="top-products-list">
+                            <div *ngFor="let product of topProducts; let i = index" class="product-item">
+                                <div class="product-rank">{{ i + 1 }}</div>
+                                <img [src]="product.imageUrl" [alt]="product.name" class="product-image">
+                                <div class="product-info">
+                                    <h6 class="product-name">{{ product.name }}</h6>
+                                    <small class="text-muted">{{ product.unitsSold }} units sold</small>
+                                </div>
+                                <div class="product-revenue text-success">
+                                    ${{ product.revenue | number:'1.0-0' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div *ngIf="!isLoading" class="row">
+            <!-- Recent Activity -->
+            <div class="col-xl-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-history me-2 text-primary"></i>Recent Activity
+                        </h5>
+                        <button class="btn btn-sm btn-outline-primary">View All</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="activity-feed">
+                            <div *ngFor="let activity of recentActivity" class="activity-item">
+                                <div class="activity-avatar">
+                                    <img [src]="activity.avatar" [alt]="activity.user" class="rounded-circle">
+                                    <span class="activity-badge" [ngClass]="'bg-' + getActivityColor(activity.type)">
+                                        <i class="fas" [ngClass]="getActivityIcon(activity.type)"></i>
+                                    </span>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-text">
+                                        <strong>{{ activity.user }}</strong> {{ activity.action }}
+                                        <span *ngIf="activity.amount > 0" class="text-success">
+                                            - ${{ activity.amount | number:'1.2-2' }}
+                                        </span>
+                                    </div>
+                                    <small class="text-muted">{{ activity.time }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Customers -->
+            <div class="col-xl-6 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-trophy me-2 text-warning"></i>Top Customers
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="top-customers-list">
+                            <div *ngFor="let customer of topCustomers; let i = index" class="customer-item">
+                                <div class="customer-rank">{{ i + 1 }}</div>
+                                <img [src]="customer.avatar" [alt]="customer.name"
+                                    class="customer-avatar rounded-circle">
+                                <div class="customer-info">
+                                    <h6 class="customer-name">{{ customer.name }}</h6>
+                                    <small class="text-muted">{{ customer.orderCount }} orders</small>
+                                </div>
+                                <div class="customer-spending text-success">
+                                    ${{ customer.totalSpent | number:'1.0-0' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insights & Recommendations -->
+        <div *ngIf="!isLoading" class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-lightbulb me-2 text-warning"></i>Business Insights
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="insight-card insight-positive">
+                                    <div class="insight-icon">
+                                        <i class="fas fa-arrow-up text-success"></i>
+                                    </div>
+                                    <div class="insight-content">
+                                        <h6>Revenue Growth</h6>
+                                        <p class="text-muted small">Your revenue increased by {{
+                                            keyMetrics.revenueGrowth
+                                            }}% compared to last period.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="insight-card insight-warning">
+                                    <div class="insight-icon">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    </div>
+                                    <div class="insight-content">
+                                        <h6>Inventory Alert</h6>
+                                        <p class="text-muted small">3 products are running low on stock and need
+                                            replenishment.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="insight-card insight-info">
+                                    <div class="insight-icon">
+                                        <i class="fas fa-chart-line text-info"></i>
+                                    </div>
+                                    <div class="insight-content">
+                                        <h6>Customer Acquisition</h6>
+                                        <p class="text-muted small">New customer growth is strong at {{
+                                            keyMetrics.customerGrowth }}% this period.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
